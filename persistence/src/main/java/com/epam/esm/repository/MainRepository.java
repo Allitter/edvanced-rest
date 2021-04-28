@@ -2,10 +2,11 @@ package com.epam.esm.repository;
 
 import com.epam.esm.model.Model;
 import com.epam.esm.repository.query.NativeQuery;
-import com.epam.esm.repository.specification.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +24,8 @@ public interface MainRepository<T extends Model> {
      * @return the added entity
      */
     T add(T t);
+
+    Collection<T> addAll(Collection<T> t);
 
     /**
      * Update.
@@ -48,15 +51,11 @@ public interface MainRepository<T extends Model> {
      */
     Page<T> query(Specification<T> specification, Pageable pageable);
 
-    /**
-     * Query. If multiple specifications passed they would be combined into one
-     *
-     * @param specifications the list of specifications {@link Specification}
-     * @return the list of entities matching the passed list
-     */
-    Page<T> query(List<Specification<T>> specifications, Pageable pageable);
-
     Page<T> query(NativeQuery nativeQuery, Pageable pageable);
+
+    List<T> queryList(Specification<T> specification, Pageable pageable);
+
+    List<T> queryList(NativeQuery nativeQuery, Pageable pageable);
 
     /**
      * Query first. The same as query() method but returns only the first entity if such exists

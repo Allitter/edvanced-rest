@@ -1,13 +1,12 @@
-package com.epam.esm.repository.specification.impl.certificate;
+package com.epam.esm.repository.specification.certificate;
 
 import com.epam.esm.model.Certificate;
-import com.epam.esm.repository.specification.Specification;
+import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.Optional;
 
 public class CertificateByDescriptionSpecification implements Specification<Certificate> {
     private final String description;
@@ -17,9 +16,7 @@ public class CertificateByDescriptionSpecification implements Specification<Cert
     }
 
     @Override
-    public Optional<Predicate> toPredicate(Root<Certificate> root, CriteriaQuery<Certificate> query, CriteriaBuilder cb) {
-        Predicate predicate = cb.like(root.get("description"), "%" + description + "%");
-        return Optional.of(predicate);
+    public Predicate toPredicate(Root<Certificate> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+        return criteriaBuilder.like(root.get("description"), "%" + description + "%");
     }
-
 }

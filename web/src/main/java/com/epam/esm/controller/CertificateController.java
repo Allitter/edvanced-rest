@@ -12,12 +12,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
-import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
 
 /**
  * The controller to provide CRUD operations on {@link Certificate}.
@@ -54,7 +51,7 @@ public class CertificateController {
                                                                   Pageable pageable,
                                                                   @RequestParam(defaultValue = "true") boolean fetchTags) {
         Page<Certificate> certificates = certificateService.findCertificatesByQueryObject(query, pageable);
-        var assembler= fetchTags ? certificateAssembler : certificateNoTagsAssembler;
+        var assembler = fetchTags ? certificateAssembler : certificateNoTagsAssembler;
         PagedModel<CertificateDto> dtos = pagedResourcesAssembler.toModel(certificates, assembler);
         return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
@@ -79,7 +76,7 @@ public class CertificateController {
      * @return the {@link CertificateDto} of added certificate
      */
     @PostMapping()
-    public CertificateDto add(@Valid @RequestBody CertificateDto dto) {
+    public CertificateDto add(@RequestBody CertificateDto dto) {
         Certificate certificate = EntityConverter.map(dto);
         Certificate result = certificateService.add(certificate);
         CertificateDto certificateDto = EntityConverter.map(result);

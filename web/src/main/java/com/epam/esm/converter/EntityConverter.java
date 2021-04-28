@@ -3,7 +3,6 @@ package com.epam.esm.converter;
 import com.epam.esm.dto.*;
 import com.epam.esm.model.*;
 import org.apache.commons.collections4.CollectionUtils;
-import org.hibernate.mapping.Collection;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,13 +67,13 @@ public final class EntityConverter {
         return new TagDto(tag.getId(), tag.getName());
     }
 
-    public static PurchasesDto map(Purchase purchase) {
+    public static PurchaseDto map(Purchase purchase) {
         List<PurchasesCertificateDto> certificates = purchase.getPurchaseCertificates()
                 .stream()
                 .map(EntityConverter::map)
                 .collect(Collectors.toList());
 
-        return new PurchasesDto(
+        return new PurchaseDto(
                 purchase.getId(),
                 purchase.getUser().getId(),
                 purchase.getCost(),
@@ -82,16 +81,16 @@ public final class EntityConverter {
                 purchase.getCreateTime());
     }
 
-    public static Purchase map(PurchasesDto purchasesDto) {
+    public static Purchase map(PurchaseDto purchaseDto) {
         List<PurchaseCertificate> purchaseCertificates = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(purchasesDto.getCertificates())) {
-            purchaseCertificates = purchasesDto.getCertificates()
+        if (CollectionUtils.isNotEmpty(purchaseDto.getCertificates())) {
+            purchaseCertificates = purchaseDto.getCertificates()
                     .stream()
                     .map(EntityConverter::map)
                     .collect(Collectors.toList());
         }
 
-        return new Purchase(purchasesDto.getId(), purchasesDto.getCost(), purchasesDto.getCreateTime(), purchaseCertificates);
+        return new Purchase(purchaseDto.getId(), purchaseDto.getCost(), purchaseDto.getCreateTime(), purchaseCertificates);
     }
 
     public static PurchasesCertificateDto map(PurchaseCertificate purchaseCertificate) {

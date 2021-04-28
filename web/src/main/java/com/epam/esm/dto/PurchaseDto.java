@@ -8,14 +8,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
 
-public class PurchasesDto extends RepresentationModel<PurchasesDto> {
+public class PurchaseDto extends RepresentationModel<PurchaseDto> {
     private Long id;
     private Long idUser;
     private int cost;
     private List<PurchasesCertificateDto> certificates;
     private LocalDateTime createTime;
 
-    public PurchasesDto(Long id, Long idUser, int cost, List<PurchasesCertificateDto> certificates, LocalDateTime createTime) {
+    public PurchaseDto(Long id, Long idUser, int cost, List<PurchasesCertificateDto> certificates, LocalDateTime createTime) {
         this.id = id;
         this.idUser = idUser;
         this.cost = cost;
@@ -67,7 +67,7 @@ public class PurchasesDto extends RepresentationModel<PurchasesDto> {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", PurchasesDto.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", PurchaseDto.class.getSimpleName() + "[", "]")
                 .add("id=" + id)
                 .add("idUser=" + idUser)
                 .add("cost=" + cost)
@@ -81,12 +81,12 @@ public class PurchasesDto extends RepresentationModel<PurchasesDto> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        PurchasesDto purchasesDto = (PurchasesDto) o;
-        return cost == purchasesDto.cost
-                && Objects.equals(id, purchasesDto.id)
-                && Objects.equals(idUser, purchasesDto.idUser)
-                && Objects.equals(certificates, purchasesDto.certificates)
-                && Objects.equals(createTime, purchasesDto.createTime);
+        PurchaseDto purchaseDto = (PurchaseDto) o;
+        return cost == purchaseDto.cost
+                && Objects.equals(id, purchaseDto.id)
+                && Objects.equals(idUser, purchaseDto.idUser)
+                && Objects.equals(certificates, purchaseDto.certificates)
+                && Objects.equals(createTime, purchaseDto.createTime);
     }
 
     @Override

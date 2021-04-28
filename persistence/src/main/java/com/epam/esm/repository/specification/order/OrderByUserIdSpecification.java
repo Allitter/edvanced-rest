@@ -1,13 +1,12 @@
-package com.epam.esm.repository.specification.impl.order;
+package com.epam.esm.repository.specification.order;
 
 import com.epam.esm.model.Purchase;
-import com.epam.esm.repository.specification.Specification;
+import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.Optional;
 
 public class OrderByUserIdSpecification implements Specification<Purchase> {
     private final Long idUser;
@@ -17,8 +16,7 @@ public class OrderByUserIdSpecification implements Specification<Purchase> {
     }
 
     @Override
-    public Optional<Predicate> toPredicate(Root<Purchase> root, CriteriaQuery<Purchase> query, CriteriaBuilder cb) {
-        Predicate predicate = cb.equal(root.get("user").get("id"), idUser);
-        return Optional.of(predicate);
+    public Predicate toPredicate(Root<Purchase> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+        return criteriaBuilder.equal(root.get("user").get("id"), idUser);
     }
 }

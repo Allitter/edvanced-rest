@@ -69,7 +69,7 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ExceptionResponse> handleException(MethodArgumentTypeMismatchException e, Locale locale) {
+    public ResponseEntity<ExceptionResponse> handleMethodArgumentException(MethodArgumentTypeMismatchException e, Locale locale) {
         LOGGER.error(e);
         String exceptionMessage = e.getCause().getMessage();
         Object parameter = exceptionMessage.substring(exceptionMessage.indexOf('[') + 1, exceptionMessage.lastIndexOf(']'));

@@ -5,12 +5,12 @@ import com.epam.esm.exception.ValidationException;
 import com.epam.esm.model.Certificate;
 import com.epam.esm.model.Tag;
 import com.epam.esm.repository.MainRepository;
-import com.epam.esm.repository.specification.Specification;
-import com.epam.esm.repository.specification.impl.certificate.*;
-import com.epam.esm.repository.specification.impl.common.AllSpecification;
-import com.epam.esm.repository.specification.impl.common.ModelByIdSpecification;
-import com.epam.esm.repository.specification.impl.common.ModelNotRemovedSpecification;
-import com.epam.esm.repository.specification.impl.tag.TagByNameSpecification;
+import com.epam.esm.repository.specification.certificate.CertificateByDescriptionSpecification;
+import com.epam.esm.repository.specification.certificate.CertificateByNameSpecification;
+import com.epam.esm.repository.specification.certificate.CertificateByTagNameSpecification;
+import com.epam.esm.repository.specification.common.ModelByIdSpecification;
+import com.epam.esm.repository.specification.common.ModelNotRemovedSpecification;
+import com.epam.esm.repository.specification.tag.TagNameInSpecification;
 import com.epam.esm.service.CertificateQueryObject;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.validator.CertificateValidator;
@@ -19,12 +19,14 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(isolation = Isolation.REPEATABLE_READ)
@@ -43,8 +45,8 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public Certificate findById(long id) {
-        Specification<Certificate> specification
-                = Specification.of(new ModelByIdSpecification<>(id), new ModelNotRemovedSpecification<>());
+        Specification<Certificate> specification = new ModelByIdSpecification<Certificate>(id)
+                .and(new ModelNotRemovedSpecification<>());
         Optional<Certificate> optionalCertificate = repository.queryFirst(specification);
         return optionalCertificate.orElseThrow(EntityNotFoundException::new);
     }
@@ -91,46 +93,43 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     private List<Tag> ensureTagsInRepo(List<Tag> tags) {
-        List<Tag> ensured = new ArrayList<>();
+        Set<String> tagNames = tags.stream().map(Tag::getName).collect(Collectors.toSet());
+        List<Tag> tagsInRepo = tagRepository.queryList(new TagNameInSpecification(tagNames), Pageable.unpaged());
+        tagsInRepo.forEach(tagInRepo -> tagNames.remove(tagInRepo.getName()));
+        List<Tag> ensuredTags = new ArrayList<>(tagsInRepo);
+        tags.stream().distinct()
+                .filter(tag -> tagNames.contains(tag.getName()))
+                .map(tagRepository::add)
+                .forEach(ensuredTags::add);
 
-        tags.forEach(tag -> {
-            Specification<Tag> specification = new TagByNameSpecification(tag.getName());
-            Optional<Tag> optional = tagRepository.queryFirst(specification);
-            tag = optional.isPresent() ? optional.get() : tagRepository.add(tag);
-            ensured.add(tag);
-        });
-
-        return ensured;
+        return ensuredTags;
     }
 
     @Override
     @Transactional
     public Certificate remove(long id) {
-        Certificate certificate = repository.queryFirst(new ModelByIdSpecification<>(id))
-                .orElseThrow(EntityNotFoundException::new);
-        certificate.setRemoved(true);
-        return certificate;
+        return repository.remove(id).orElseThrow(EntityNotFoundException::new);
     }
 
     @Override
     public Page<Certificate> findCertificatesByQueryObject(CertificateQueryObject queryObject, Pageable pageable) {
-        List<Specification<Certificate>> specifications = new ArrayList<>();
-
+        Specification<Certificate> specification = new ModelNotRemovedSpecification<>();
         if (StringUtils.isNotBlank(queryObject.getName())) {
-            specifications.add(new CertificateByNameSpecification(queryObject.getName()));
+            specification = specification.and(new CertificateByNameSpecification(queryObject.getName()));
         }
         if (StringUtils.isNotBlank(queryObject.getDescription())) {
-            specifications.add(new CertificateByDescriptionSpecification(queryObject.getDescription()));
+            specification = specification.and(new CertificateByDescriptionSpecification(queryObject.getDescription()));
         }
         if (CollectionUtils.isNotEmpty(queryObject.getTagNames())) {
-            queryObject.getTagNames()
-                    .forEach(tagName -> specifications.add(new CertificateByTagNameSpecification(tagName)));
+            List<Specification<Certificate>> tagNameSpecifications = queryObject.getTagNames()
+                    .stream().distinct()
+                    .map(CertificateByTagNameSpecification::new)
+                    .collect(Collectors.toList());
+            for (Specification<Certificate> tagSpecification : tagNameSpecifications) {
+                specification = specification.and(tagSpecification);
+            }
         }
-        if (specifications.isEmpty()) {
-            specifications.add(new AllSpecification<>());
-        }
-        specifications.add(new ModelNotRemovedSpecification<>());
 
-        return repository.query(specifications, pageable);
+        return repository.query(specification, pageable);
     }
 }

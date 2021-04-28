@@ -59,7 +59,7 @@ public class TagController {
         return tagLinkBuilder.buildLinks(dto);
     }
 
-    @GetMapping(value = "/mostFrequentTagOfUserWithHighestCostOfAllOrders")
+    @GetMapping(value = "/top-user/popular-tag")
     public TagDto findMostFrequentTagOfUserWithHighestCostOfAllOrders() {
         Tag tag = tagService.findMostFrequentTagOfUserWithHighestCostOfAllOrders();
         TagDto dto = EntityConverter.map(tag);

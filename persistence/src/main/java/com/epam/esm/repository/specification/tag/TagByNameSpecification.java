@@ -1,13 +1,12 @@
-package com.epam.esm.repository.specification.impl.tag;
+package com.epam.esm.repository.specification.tag;
 
 import com.epam.esm.model.Tag;
-import com.epam.esm.repository.specification.Specification;
+import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.Optional;
 
 public class TagByNameSpecification implements Specification<Tag> {
     private final String name;
@@ -17,8 +16,7 @@ public class TagByNameSpecification implements Specification<Tag> {
     }
 
     @Override
-    public Optional<Predicate> toPredicate(Root<Tag> root, CriteriaQuery<Tag> query, CriteriaBuilder cb) {
-        Predicate predicate = cb.like(root.get("name"), name);
-        return Optional.of(predicate);
+    public Predicate toPredicate(Root<Tag> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+        return criteriaBuilder.like(root.get("name"), name);
     }
 }

@@ -9,26 +9,27 @@ import java.time.LocalDate;
 import java.util.*;
 
 import static java.util.Objects.hash;
-import static java.util.Objects.requireNonNull;
 
 
 @Entity
 @Table(name = "certificate")
 public class Certificate implements Model {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name="pk_sequence",sequenceName="certificate_id_seq", allocationSize=5)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE,generator="pk_sequence")
+    @Column(name="id", unique=true, nullable=false)
     private Long id;
-    @Column(name = "name")
+    @Column(name = "name", length = 255, nullable = false)
     private String name;
-    @Column(name = "description")
+    @Column(name = "description", length = 255, nullable = false)
     private String description;
-    @Column(name = "price")
+    @Column(name = "price", nullable = false)
     private Integer price;
-    @Column(name = "duration")
+    @Column(name = "duration", nullable = false)
     private Integer duration;
-    @Column(name = "create_date")
+    @Column(name = "create_date", nullable = false,  updatable = false)
     private LocalDate createDate;
-    @Column(name = "last_update_date")
+    @Column(name = "last_update_date", nullable = false)
     private LocalDate lastUpdateDate;
     @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     @JoinTable(
@@ -37,7 +38,7 @@ public class Certificate implements Model {
             inverseJoinColumns = {@JoinColumn(name = "id_tag")}
     )
     private List<Tag> tags;
-    @Column(name = "removed", columnDefinition = "boolean default false")
+    @Column(name = "removed", columnDefinition = "boolean DEFAULT FALSE")
     private boolean removed;
 
     public Certificate() {
