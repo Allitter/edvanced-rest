@@ -10,11 +10,12 @@ import java.util.StringJoiner;
 @Table(name = "purchase")
 public class Purchase implements Model {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name="pk_sequence",sequenceName="purchase_id_seq", allocationSize=5)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="pk_sequence")
     private Long id;
-    @Column(name = "cost")
+    @Column(name = "cost", nullable = false)
     private int cost;
-    @Column(name = "create_time")
+    @Column(name = "create_time", nullable = false, updatable = false)
     private LocalDateTime createTime;
     @ManyToOne
     @JoinColumn(name = "id_user")

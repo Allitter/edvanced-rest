@@ -1,9 +1,5 @@
 package com.epam.esm.dto;
 
-import com.epam.esm.util.ResourceBundleMessage;
-import com.epam.esm.validation.ValidationGroup;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.util.Objects;
@@ -11,8 +7,6 @@ import java.util.StringJoiner;
 
 public class TagDto extends RepresentationModel<TagDto> {
     private long id;
-    @NotBlank(message = ResourceBundleMessage.TAG_NAME_EMPTY, groups = ValidationGroup.Create.class)
-    @Pattern(regexp = "[\\w]{2,64}", message = ResourceBundleMessage.TAG_NAME_FORMAT)
     private String name;
 
     public TagDto(long id, String name) {
@@ -53,11 +47,11 @@ public class TagDto extends RepresentationModel<TagDto> {
             return false;
         }
         TagDto tagDto = (TagDto) o;
-        return id == tagDto.id && Objects.equals(name, tagDto.name);
+        return Objects.equals(name, tagDto.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name);
+        return Objects.hash(name);
     }
 }

@@ -4,10 +4,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.StringJoiner;
+import java.util.*;
 
 public class CertificateDto extends RepresentationModel<CertificateDto> {
     private long id;
@@ -17,10 +14,10 @@ public class CertificateDto extends RepresentationModel<CertificateDto> {
     private Integer duration;
     private LocalDate createDate;
     private LocalDate lastUpdateDate;
-    private List<TagDto> tags;
+    private Set<TagDto> tags;
 
     public CertificateDto() {
-        tags = new ArrayList<>();
+        tags = new LinkedHashSet<>();
     }
 
     public CertificateDto(long id) {
@@ -38,7 +35,7 @@ public class CertificateDto extends RepresentationModel<CertificateDto> {
         this.lastUpdateDate = lastUpdateDate;
 
         if (tags != null) {
-            this.tags = new ArrayList<>(tags);
+            this.tags = new LinkedHashSet<>(tags);
         }
     }
 
@@ -98,13 +95,13 @@ public class CertificateDto extends RepresentationModel<CertificateDto> {
         this.lastUpdateDate = lastUpdateDate;
     }
 
-    public List<TagDto> getTags() {
+    public Set<TagDto> getTags() {
         return tags;
     }
 
     public void setTags(List<TagDto> tags) {
         if (CollectionUtils.isNotEmpty(tags)) {
-            this.tags = new ArrayList<>(tags);
+            this.tags = new LinkedHashSet<>(tags);
         }
     }
 

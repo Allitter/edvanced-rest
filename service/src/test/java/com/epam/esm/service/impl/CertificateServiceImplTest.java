@@ -4,15 +4,15 @@ import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.model.Certificate;
 import com.epam.esm.model.Tag;
 import com.epam.esm.repository.MainRepository;
-import com.epam.esm.repository.specification.impl.certificate.*;
-import com.epam.esm.repository.specification.impl.common.ModelByIdSpecification;
-import com.epam.esm.repository.specification.impl.tag.TagByNameSpecification;
+import com.epam.esm.repository.specification.common.ModelByIdSpecification;
+import com.epam.esm.repository.specification.tag.TagByNameSpecification;
 import com.epam.esm.service.CertificateQueryObject;
 import com.epam.esm.validator.CertificateValidator;
 import org.junit.jupiter.api.Test;
 import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -124,7 +124,7 @@ class CertificateServiceImplTest {
 
     @Test
     void testFindCertificatesByQueryObjectShouldFindCertificatesByNameIfSet() {
-        Mockito.when(certificateRepository.query(Mockito.anyList(), eq(Pageable.unpaged()))).thenReturn(new PageImpl<>(List.of(CERTIFICATE)));
+        Mockito.when(certificateRepository.query(Mockito.isA(Specification.class), eq(Pageable.unpaged()))).thenReturn(new PageImpl<>(List.of(CERTIFICATE)));
         CertificateQueryObject queryObject = new CertificateQueryObject(NAME, null, null);
         List<Certificate> expected = List.of(CERTIFICATE);
 
@@ -135,7 +135,7 @@ class CertificateServiceImplTest {
 
     @Test
     void testFindCertificatesByQueryObjectShouldFindCertificatesByDescriptionIfSet() {
-        Mockito.when(certificateRepository.query(Mockito.anyList(), eq(Pageable.unpaged()))).thenReturn(new PageImpl<>(List.of(CERTIFICATE)));
+        Mockito.when(certificateRepository.query(Mockito.isA(Specification.class), eq(Pageable.unpaged()))).thenReturn(new PageImpl<>(List.of(CERTIFICATE)));
         CertificateQueryObject queryObject = new CertificateQueryObject(null, null, DESCRIPTION);
         List<Certificate> expected = List.of(CERTIFICATE);
 
@@ -146,7 +146,7 @@ class CertificateServiceImplTest {
 
     @Test
     void testFindCertificatesByQueryObjectShouldFindCertificatesByTagNameIfSet() {
-        Mockito.when(certificateRepository.query(Mockito.anyList(), eq(Pageable.unpaged()))).thenReturn(new PageImpl<>(List.of(CERTIFICATE)));
+        Mockito.when(certificateRepository.query(Mockito.isA(Specification.class), eq(Pageable.unpaged()))).thenReturn(new PageImpl<>(List.of(CERTIFICATE)));
         CertificateQueryObject queryObject = new CertificateQueryObject(null, Collections.singletonList(FIRST_TAG.getName()), null);
         List<Certificate> expected = List.of(CERTIFICATE);
 
@@ -157,7 +157,7 @@ class CertificateServiceImplTest {
 
     @Test
     void testFindCertificatesByQueryObjectShouldFindAllCertificatesIfNoParametersSet() {
-        Mockito.when(certificateRepository.query(Mockito.anyList(), eq(Pageable.unpaged())))
+        Mockito.when(certificateRepository.query(Mockito.isA(Specification.class), eq(Pageable.unpaged())))
                 .thenReturn(new PageImpl<>(List.of(CERTIFICATE)));
         CertificateQueryObject queryObject = new CertificateQueryObject(null, null, null);
         List<Certificate> expected = List.of(CERTIFICATE);
@@ -169,7 +169,7 @@ class CertificateServiceImplTest {
 
     @Test
     void testFindCertificatesByQueryObjectShouldFindCertificatesByMultipleParametersIfSet() {
-        Mockito.when(certificateRepository.query(Mockito.anyList(), eq(Pageable.unpaged())))
+        Mockito.when(certificateRepository.query(Mockito.isA(Specification.class), eq(Pageable.unpaged())))
                 .thenReturn(new PageImpl<>(List.of(CERTIFICATE)) );
 
         CertificateQueryObject queryObject = new CertificateQueryObject(NAME, Collections.singletonList(FIRST_TAG.getName()), DESCRIPTION);
@@ -184,7 +184,7 @@ class CertificateServiceImplTest {
     void testFindCertificatesByQueryObjectShouldSortCertificatesByByNameAscendingIfAscSet() {
         Pageable pageable = PageRequest.of(0, 10, Sort.Direction.ASC, "name");
 
-        Mockito.when(certificateRepository.query(Mockito.anyList(), eq(pageable)))
+        Mockito.when(certificateRepository.query(Mockito.isA(Specification.class), eq(pageable)))
                 .thenReturn(new PageImpl<>(List.of(CERTIFICATE, SECOND_CERTIFICATE)));
 
         CertificateQueryObject queryObject = new CertificateQueryObject(null, null, null);

@@ -1,20 +1,19 @@
 package com.epam.esm.service.impl;
 
 import com.epam.esm.exception.EntityNotFoundException;
-import com.epam.esm.model.Certificate;
 import com.epam.esm.model.Purchase;
 import com.epam.esm.model.PurchaseCertificate;
 import com.epam.esm.model.User;
 import com.epam.esm.repository.impl.PurchaseRepository;
-import com.epam.esm.repository.specification.Specification;
-import com.epam.esm.repository.specification.impl.common.ModelByIdSpecification;
-import com.epam.esm.repository.specification.impl.common.ModelNotRemovedSpecification;
-import com.epam.esm.repository.specification.impl.order.OrderByUserIdSpecification;
+import com.epam.esm.repository.specification.common.ModelByIdSpecification;
+import com.epam.esm.repository.specification.common.ModelNotRemovedSpecification;
+import com.epam.esm.repository.specification.order.OrderByUserIdSpecification;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.PurchaseService;
 import com.epam.esm.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,15 +40,15 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     public Purchase findById(Long id) {
         return purchaseRepository
-                .queryFirst(Specification.of(new ModelByIdSpecification<>(id),
-                                             new ModelNotRemovedSpecification<>()))
+                .queryFirst(new ModelByIdSpecification<Purchase>(id).and(new ModelNotRemovedSpecification<>()))
                 .orElseThrow(EntityNotFoundException::new);
     }
 
     @Override
     public Page<Purchase> findByUserId(Long idUser, Pageable pageable) {
-        Specification<Purchase> specification
-                = Specification.of(new OrderByUserIdSpecification(idUser), new ModelNotRemovedSpecification<>());
+        Specification<Purchase> specification = new OrderByUserIdSpecification(idUser)
+                .and(new ModelNotRemovedSpecification<>());
+
         return purchaseRepository.query(specification, pageable);
     }
 
@@ -82,19 +81,20 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     private List<PurchaseCertificate> compressPurchaseCertificates(List<PurchaseCertificate> purchaseCertificates) {
-        Map<Long, PurchaseCertificate> purchaseCertificateMap = new HashMap<>();
-        purchaseCertificates.forEach(purchaseCertificate -> {
-            Long certificateId = purchaseCertificate.getCertificate().getId();
-            if (purchaseCertificateMap.containsKey(certificateId)) {
-                PurchaseCertificate addedPurchaseCertificate = purchaseCertificateMap.get(certificateId);
-                int addedCount = addedPurchaseCertificate.getCount();
-                int additionalCount = purchaseCertificate.getCount();
-                addedPurchaseCertificate.setCount(addedCount + additionalCount);
-            } else {
-                purchaseCertificateMap.put(certificateId, purchaseCertificate);
-            }
-        });
-
+        Map<Long, PurchaseCertificate> purchaseCertificateMap = new HashMap<>(); // key is certificate id
+        purchaseCertificates.forEach(purchaseCertificate -> putToMapOrCombineCount(purchaseCertificateMap, purchaseCertificate));
         return new ArrayList<>(purchaseCertificateMap.values());
+    }
+
+    // Certificate id is used as purchaseCertificateMap key
+    private void putToMapOrCombineCount(Map<Long, PurchaseCertificate> purchaseCertificateMap,
+                                        PurchaseCertificate purchaseCertificate) {
+
+        Long certificateId = purchaseCertificate.getCertificate().getId();
+        PurchaseCertificate previousValue = purchaseCertificateMap.put(certificateId, purchaseCertificate);
+        if (previousValue != null) {
+            int newCount = purchaseCertificate.getCount() + previousValue.getCount();
+            purchaseCertificate.setCount(newCount);
+        }
     }
 }

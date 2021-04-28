@@ -6,9 +6,9 @@ import com.epam.esm.exception.ValidationException;
 import com.epam.esm.model.Tag;
 import com.epam.esm.repository.MainRepository;
 import com.epam.esm.repository.query.MostFrequentTagOfUserWithHighestCostOfAllOrdersQuery;
-import com.epam.esm.repository.specification.impl.common.AllSpecification;
-import com.epam.esm.repository.specification.impl.common.ModelByIdSpecification;
-import com.epam.esm.repository.specification.impl.tag.TagByNameSpecification;
+import com.epam.esm.repository.specification.common.AllSpecification;
+import com.epam.esm.repository.specification.common.ModelByIdSpecification;
+import com.epam.esm.repository.specification.tag.TagByNameSpecification;
 import com.epam.esm.service.TagService;
 import com.epam.esm.validator.TagValidator;
 import org.apache.commons.collections4.MapUtils;
@@ -64,6 +64,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    @Transactional
     public Tag remove(long id) {
         return tagRepository.remove(id).orElseThrow(EntityNotFoundException::new);
     }
