@@ -4,10 +4,12 @@ import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.model.Certificate;
 import com.epam.esm.model.Tag;
 import com.epam.esm.repository.MainRepository;
+import com.epam.esm.repository.specification.certificate.adapter.CertificateSpecification;
 import com.epam.esm.repository.specification.common.ModelByIdSpecification;
 import com.epam.esm.repository.specification.tag.TagByNameSpecification;
 import com.epam.esm.service.CertificateQueryObject;
 import com.epam.esm.validator.CertificateValidator;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
@@ -18,8 +20,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doAnswer;
 
 class CertificateServiceImplTest {
@@ -61,7 +62,7 @@ class CertificateServiceImplTest {
 
     @Test
     void testFindByIdShouldReturnCertificateWithQueriedIdIfSuchExist() {
-        Mockito.when(certificateRepository.queryFirst(Mockito.isA(ModelByIdSpecification.class)))
+        Mockito.when(certificateRepository.queryFirst(Mockito.any(Specification.class)))
                 .thenReturn(Optional.of(CERTIFICATE));
 
         Certificate actual = service.findById(ID);
@@ -77,7 +78,7 @@ class CertificateServiceImplTest {
         doAnswer(AdditionalAnswers.returnsFirstArg()).when(tagRepository).add(any());
 
         Certificate actual = service.add(CERTIFICATE);
-
+        Assertions.
         assertEquals(CERTIFICATE, actual);
     }
 
@@ -87,7 +88,7 @@ class CertificateServiceImplTest {
         Certificate certificate = new Certificate.Builder(CERTIFICATE).setLastUpdateDate(LocalDate.now()).setPrice(newPrice).build();
         Mockito.when(certificateValidator.validateForCreate(certificate)).thenReturn(Collections.emptyMap());
         Mockito.when(certificateRepository.update(certificate)).thenReturn(certificate);
-        Mockito.when(certificateRepository.queryFirst(Mockito.isA(ModelByIdSpecification.class)))
+        Mockito.when(certificateRepository.queryFirst(isA(ModelByIdSpecification.class)))
                 .thenReturn(Optional.of(CERTIFICATE));
         Mockito.when(tagRepository.queryFirst(Mockito.isA(TagByNameSpecification.class))).thenReturn(Optional.empty());
         doAnswer(AdditionalAnswers.returnsFirstArg()).when(tagRepository).add(any());
@@ -100,7 +101,7 @@ class CertificateServiceImplTest {
     @Test
     void TestUpdateShouldThrowExceptionIfCertificateNotPresent() {
         Mockito.when(certificateValidator.validateForCreate(Mockito.any())).thenReturn(Collections.emptyMap());
-        Mockito.when(certificateRepository.queryFirst(Mockito.isA(ModelByIdSpecification.class)))
+        Mockito.when(certificateRepository.queryFirst(isA(CertificateSpecification.class)))
                 .thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> service.update(CERTIFICATE));
@@ -124,58 +125,61 @@ class CertificateServiceImplTest {
 
     @Test
     void testFindCertificatesByQueryObjectShouldFindCertificatesByNameIfSet() {
-        Mockito.when(certificateRepository.query(Mockito.isA(Specification.class), eq(Pageable.unpaged()))).thenReturn(new PageImpl<>(List.of(CERTIFICATE)));
+        Mockito.when(certificateRepository.query(Mockito.any(Specification.class), eq(Pageable.unpaged()), eq(false)))
+                .thenReturn(new PageImpl<>(List.of(CERTIFICATE)));
         CertificateQueryObject queryObject = new CertificateQueryObject(NAME, null, null);
         List<Certificate> expected = List.of(CERTIFICATE);
 
-        Page<Certificate> actual = service.findCertificatesByQueryObject(queryObject, Pageable.unpaged());
+        Page<Certificate> actual = service.findCertificatesByQueryObject(queryObject, Pageable.unpaged(), false);
 
         assertEquals(expected, actual.getContent());
     }
 
     @Test
     void testFindCertificatesByQueryObjectShouldFindCertificatesByDescriptionIfSet() {
-        Mockito.when(certificateRepository.query(Mockito.isA(Specification.class), eq(Pageable.unpaged()))).thenReturn(new PageImpl<>(List.of(CERTIFICATE)));
+        Mockito.when(certificateRepository.query(Mockito.any(Specification.class), eq(Pageable.unpaged()), eq(false)))
+                .thenReturn(new PageImpl<>(List.of(CERTIFICATE)));
         CertificateQueryObject queryObject = new CertificateQueryObject(null, null, DESCRIPTION);
         List<Certificate> expected = List.of(CERTIFICATE);
 
-        Page<Certificate> actual = service.findCertificatesByQueryObject(queryObject, Pageable.unpaged());
+        Page<Certificate> actual = service.findCertificatesByQueryObject(queryObject, Pageable.unpaged(), false);
 
         assertEquals(expected, actual.getContent());
     }
 
     @Test
     void testFindCertificatesByQueryObjectShouldFindCertificatesByTagNameIfSet() {
-        Mockito.when(certificateRepository.query(Mockito.isA(Specification.class), eq(Pageable.unpaged()))).thenReturn(new PageImpl<>(List.of(CERTIFICATE)));
+        Mockito.when(certificateRepository.query(Mockito.any(Specification.class), eq(Pageable.unpaged()), eq(false)))
+                .thenReturn(new PageImpl<>(List.of(CERTIFICATE)));
         CertificateQueryObject queryObject = new CertificateQueryObject(null, Collections.singletonList(FIRST_TAG.getName()), null);
         List<Certificate> expected = List.of(CERTIFICATE);
 
-        Page<Certificate> actual = service.findCertificatesByQueryObject(queryObject, Pageable.unpaged());
+        Page<Certificate> actual = service.findCertificatesByQueryObject(queryObject, Pageable.unpaged(), false);
 
         assertEquals(expected, actual.getContent());
     }
 
     @Test
     void testFindCertificatesByQueryObjectShouldFindAllCertificatesIfNoParametersSet() {
-        Mockito.when(certificateRepository.query(Mockito.isA(Specification.class), eq(Pageable.unpaged())))
+        Mockito.when(certificateRepository.query(Mockito.any(Specification.class), eq(Pageable.unpaged()), eq(false)))
                 .thenReturn(new PageImpl<>(List.of(CERTIFICATE)));
         CertificateQueryObject queryObject = new CertificateQueryObject(null, null, null);
         List<Certificate> expected = List.of(CERTIFICATE);
 
-        Page<Certificate> actual = service.findCertificatesByQueryObject(queryObject, Pageable.unpaged());
+        Page<Certificate> actual = service.findCertificatesByQueryObject(queryObject, Pageable.unpaged(), false);
 
         assertEquals(expected, actual.getContent());
     }
 
     @Test
     void testFindCertificatesByQueryObjectShouldFindCertificatesByMultipleParametersIfSet() {
-        Mockito.when(certificateRepository.query(Mockito.isA(Specification.class), eq(Pageable.unpaged())))
-                .thenReturn(new PageImpl<>(List.of(CERTIFICATE)) );
+        Mockito.when(certificateRepository.query(Mockito.any(Specification.class), eq(Pageable.unpaged()), eq(false)))
+                .thenReturn(new PageImpl<>(List.of(CERTIFICATE)));
 
         CertificateQueryObject queryObject = new CertificateQueryObject(NAME, Collections.singletonList(FIRST_TAG.getName()), DESCRIPTION);
         List<Certificate> expected = List.of(CERTIFICATE);
 
-        Page<Certificate> actual = service.findCertificatesByQueryObject(queryObject, Pageable.unpaged());
+        Page<Certificate> actual = service.findCertificatesByQueryObject(queryObject, Pageable.unpaged(), false);
 
         assertEquals(expected, actual.getContent());
     }
@@ -184,13 +188,13 @@ class CertificateServiceImplTest {
     void testFindCertificatesByQueryObjectShouldSortCertificatesByByNameAscendingIfAscSet() {
         Pageable pageable = PageRequest.of(0, 10, Sort.Direction.ASC, "name");
 
-        Mockito.when(certificateRepository.query(Mockito.isA(Specification.class), eq(pageable)))
+        Mockito.when(certificateRepository.query(Mockito.any(Specification.class), eq(pageable), eq(false)))
                 .thenReturn(new PageImpl<>(List.of(CERTIFICATE, SECOND_CERTIFICATE)));
 
         CertificateQueryObject queryObject = new CertificateQueryObject(null, null, null);
         List<Certificate> expected = List.of(CERTIFICATE, SECOND_CERTIFICATE);
 
-        Page<Certificate> actual = service.findCertificatesByQueryObject(queryObject, pageable);
+        Page<Certificate> actual = service.findCertificatesByQueryObject(queryObject, pageable, false);
 
         assertEquals(expected, actual.getContent());
     }

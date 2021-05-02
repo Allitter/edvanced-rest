@@ -1,10 +1,14 @@
 package com.epam.esm.dto;
 
+import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PurchasesCertificateDto {
+@Relation(collectionRelation = "certificates")
+public class PurchasesCertificateDto extends RepresentationModel<PurchasesCertificateDto> {
     private long id;
     private String name;
     private String description;
@@ -17,24 +21,6 @@ public class PurchasesCertificateDto {
 
     public PurchasesCertificateDto() {
         tags = new ArrayList<>();
-    }
-
-    public PurchasesCertificateDto(long id) {
-        super();
-        this.id = id;
-    }
-
-    public PurchasesCertificateDto(long id, String name, String description, Integer price, Integer duration,
-                                   LocalDate createDate, LocalDate lastUpdateDate, List<TagDto> tags, int count) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.duration = duration;
-        this.createDate = createDate;
-        this.lastUpdateDate = lastUpdateDate;
-        this.tags = tags;
-        this.count = count;
     }
 
     public long getId() {

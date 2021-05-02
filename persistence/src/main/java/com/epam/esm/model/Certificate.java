@@ -15,8 +15,8 @@ import static java.util.Objects.hash;
 @Table(name = "certificate")
 public class Certificate implements Model {
     @Id
-    @SequenceGenerator(name="pk_sequence",sequenceName="certificate_id_seq", allocationSize=5)
-    @GeneratedValue(strategy=GenerationType.SEQUENCE,generator="pk_sequence")
+    @SequenceGenerator(name="certificate_id_seq",sequenceName="certificate_id_seq", allocationSize=5)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="certificate_id_seq")
     @Column(name="id", unique=true, nullable=false)
     private Long id;
     @Column(name = "name", length = 255, nullable = false)
@@ -38,7 +38,7 @@ public class Certificate implements Model {
             inverseJoinColumns = {@JoinColumn(name = "id_tag")}
     )
     private List<Tag> tags;
-    @Column(name = "removed", columnDefinition = "boolean DEFAULT FALSE")
+    @Column(name = "removed", columnDefinition = "boolean default false")
     private boolean removed;
 
     public Certificate() {

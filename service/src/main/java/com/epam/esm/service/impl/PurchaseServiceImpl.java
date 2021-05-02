@@ -4,10 +4,10 @@ import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.model.Purchase;
 import com.epam.esm.model.PurchaseCertificate;
 import com.epam.esm.model.User;
-import com.epam.esm.repository.impl.PurchaseRepository;
+import com.epam.esm.repository.MainRepository;
 import com.epam.esm.repository.specification.common.ModelByIdSpecification;
 import com.epam.esm.repository.specification.common.ModelNotRemovedSpecification;
-import com.epam.esm.repository.specification.order.OrderByUserIdSpecification;
+import com.epam.esm.repository.specification.purchase.PurchaseByUserIdSpecification;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.PurchaseService;
 import com.epam.esm.service.UserService;
@@ -27,11 +27,11 @@ import java.util.Map;
 public class PurchaseServiceImpl implements PurchaseService {
     private final UserService userService;
     private final CertificateService certificateService;
-    private final PurchaseRepository purchaseRepository;
+    private final MainRepository<Purchase> purchaseRepository;
 
     public PurchaseServiceImpl(UserService userService,
                                CertificateService certificateService,
-                               PurchaseRepository purchaseRepository) {
+                               MainRepository<Purchase> purchaseRepository) {
         this.userService = userService;
         this.certificateService = certificateService;
         this.purchaseRepository = purchaseRepository;
@@ -39,17 +39,20 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Override
     public Purchase findById(Long id) {
+        Specification<Purchase> specification = new ModelByIdSpecification<Purchase>(id)
+                .and(new ModelNotRemovedSpecification<>());
+
         return purchaseRepository
-                .queryFirst(new ModelByIdSpecification<Purchase>(id).and(new ModelNotRemovedSpecification<>()))
+                .queryFirst(specification)
                 .orElseThrow(EntityNotFoundException::new);
     }
 
     @Override
-    public Page<Purchase> findByUserId(Long idUser, Pageable pageable) {
-        Specification<Purchase> specification = new OrderByUserIdSpecification(idUser)
+    public Page<Purchase> findByUserId(Long idUser, Pageable pageable, boolean eager) {
+        Specification<Purchase> specification = new PurchaseByUserIdSpecification(idUser)
                 .and(new ModelNotRemovedSpecification<>());
 
-        return purchaseRepository.query(specification, pageable);
+        return purchaseRepository.query(specification, pageable, eager);
     }
 
     @Override

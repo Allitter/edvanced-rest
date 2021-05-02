@@ -8,7 +8,7 @@ public interface PurchaseService {
 
     Purchase findById(Long id);
 
-    Page<Purchase> findByUserId(Long idUser, Pageable pageable);
+    Page<Purchase> findByUserId(Long idUser, Pageable pageable, boolean eager);
 
     Purchase add(Long idUser, Purchase purchase);
 

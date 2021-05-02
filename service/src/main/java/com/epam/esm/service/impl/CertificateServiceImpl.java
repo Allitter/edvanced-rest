@@ -55,7 +55,8 @@ public class CertificateServiceImpl implements CertificateService {
     public Certificate update(Certificate certificate) {
         throwExceptionIfNotValid(validator.validateForUpdate(certificate));
 
-        Optional<Certificate> optional = repository.queryFirst(new ModelByIdSpecification<>(certificate.getId()));
+        Specification<Certificate> specification = new ModelByIdSpecification<>(certificate.getId());
+        Optional<Certificate> optional = repository.queryFirst(specification);
         Certificate oldCertificate = optional.orElseThrow(EntityNotFoundException::new);
 
         Certificate certificateToUpdate = Certificate.Builder.merge(oldCertificate, certificate);
@@ -112,7 +113,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public Page<Certificate> findCertificatesByQueryObject(CertificateQueryObject queryObject, Pageable pageable) {
+    public Page<Certificate> findCertificatesByQueryObject(CertificateQueryObject queryObject, Pageable pageable, boolean eager) {
         Specification<Certificate> specification = new ModelNotRemovedSpecification<>();
         if (StringUtils.isNotBlank(queryObject.getName())) {
             specification = specification.and(new CertificateByNameSpecification(queryObject.getName()));
@@ -130,6 +131,6 @@ public class CertificateServiceImpl implements CertificateService {
             }
         }
 
-        return repository.query(specification, pageable);
+        return repository.query(specification, pageable, eager);
     }
 }

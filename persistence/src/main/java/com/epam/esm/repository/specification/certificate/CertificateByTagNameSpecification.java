@@ -16,7 +16,6 @@ public class CertificateByTagNameSpecification implements Specification<Certific
     @Override
     public Predicate toPredicate(Root<Certificate> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
         Join<Tag, Certificate> certificateTagJoin = root.join("tags");
-        ((CriteriaQuery<Certificate>)query).select(root).distinct(true);
         return criteriaBuilder.like(certificateTagJoin.get("name"), "%" + tagName + "%");
     }
 }

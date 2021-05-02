@@ -2,19 +2,26 @@ package com.epam.esm.controller;
 
 import com.epam.esm.converter.EntityConverter;
 import com.epam.esm.dto.CertificateDto;
+import com.epam.esm.dto.TagDto;
 import com.epam.esm.link.LinkBuilder;
 import com.epam.esm.link.assembler.CertificateNoTagsRepresentationalModelAssembler;
 import com.epam.esm.link.assembler.CertificateRepresentationalModelAssembler;
 import com.epam.esm.model.Certificate;
+import com.epam.esm.model.Tag;
 import com.epam.esm.service.CertificateQueryObject;
 import com.epam.esm.service.CertificateService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The controller to provide CRUD operations on {@link Certificate}.
@@ -24,17 +31,20 @@ import org.springframework.web.bind.annotation.*;
 public class CertificateController {
     private final CertificateService certificateService;
     private final LinkBuilder<CertificateDto> certificateLinkBuilder;
+    private final LinkBuilder<TagDto> tagLinkBuilder;
     private final PagedResourcesAssembler<Certificate> pagedResourcesAssembler;
     private final CertificateRepresentationalModelAssembler certificateAssembler;
     private final CertificateNoTagsRepresentationalModelAssembler certificateNoTagsAssembler;
 
     public CertificateController(CertificateService certificateService,
                                  LinkBuilder<CertificateDto> linkBuilder,
+                                 LinkBuilder<TagDto> tagLinkBuilder,
                                  PagedResourcesAssembler<Certificate> pagedResourcesAssembler,
                                  CertificateRepresentationalModelAssembler certificateAssembler,
                                  CertificateNoTagsRepresentationalModelAssembler certificateNoTagsAssembler) {
         this.certificateService = certificateService;
         this.certificateLinkBuilder = linkBuilder;
+        this.tagLinkBuilder = tagLinkBuilder;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
         this.certificateAssembler = certificateAssembler;
         this.certificateNoTagsAssembler = certificateNoTagsAssembler;
@@ -50,7 +60,7 @@ public class CertificateController {
     public ResponseEntity<PagedModel<CertificateDto>> findByQuery(CertificateQueryObject query,
                                                                   Pageable pageable,
                                                                   @RequestParam(defaultValue = "true") boolean fetchTags) {
-        Page<Certificate> certificates = certificateService.findCertificatesByQueryObject(query, pageable);
+        Page<Certificate> certificates = certificateService.findCertificatesByQueryObject(query, pageable, fetchTags);
         var assembler = fetchTags ? certificateAssembler : certificateNoTagsAssembler;
         PagedModel<CertificateDto> dtos = pagedResourcesAssembler.toModel(certificates, assembler);
         return new ResponseEntity<>(dtos, HttpStatus.OK);
@@ -63,10 +73,23 @@ public class CertificateController {
      * @return the {@link CertificateDto} of queried certificate
      */
     @GetMapping(value = "/{id}")
-    public CertificateDto findById(@PathVariable long id) {
+    public ResponseEntity<CertificateDto> findById(@PathVariable long id) {
         Certificate certificate = certificateService.findById(id);
         CertificateDto dto = EntityConverter.map(certificate);
-        return certificateLinkBuilder.buildLinks(dto);
+        dto = certificateLinkBuilder.buildLinks(dto);
+        return ResponseEntity.ok(dto);
+    }
+
+    @GetMapping(value = "/{id}/tags")
+    public ResponseEntity<CollectionModel<TagDto>> findCertificateTags(@PathVariable long id) {
+        Certificate certificate = certificateService.findById(id);
+        List<Tag> tags = certificate.getTags();
+        List<TagDto> tagDtos = tags.stream()
+                .map(EntityConverter::map)
+                .map(tagLinkBuilder::buildLinks)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(CollectionModel.of(tagDtos));
     }
 
     /**
@@ -76,11 +99,12 @@ public class CertificateController {
      * @return the {@link CertificateDto} of added certificate
      */
     @PostMapping()
-    public CertificateDto add(@RequestBody CertificateDto dto) {
+    public ResponseEntity<CertificateDto> add(@RequestBody CertificateDto dto) {
         Certificate certificate = EntityConverter.map(dto);
         Certificate result = certificateService.add(certificate);
         CertificateDto certificateDto = EntityConverter.map(result);
-        return certificateLinkBuilder.buildLinks(certificateDto);
+        certificateDto = certificateLinkBuilder.buildLinks(certificateDto);
+        return ResponseEntity.ok(certificateDto);
     }
 
     /**
@@ -91,12 +115,13 @@ public class CertificateController {
      * @return the updated certificate {@link CertificateDto}
      */
     @PutMapping(value = "/{id}")
-    public CertificateDto update(@PathVariable long id, @RequestBody CertificateDto dto) {
+    public ResponseEntity<CertificateDto> update(@PathVariable long id, @Valid @RequestBody CertificateDto dto) {
         dto.setId(id);
         Certificate certificate = EntityConverter.map(dto);
         Certificate updated = certificateService.update(certificate);
         CertificateDto certificateDto = EntityConverter.map(updated);
-        return certificateLinkBuilder.buildLinks(certificateDto);
+        certificateDto = certificateLinkBuilder.buildLinks(certificateDto);
+        return ResponseEntity.ok(certificateDto);
     }
 
     /**
@@ -106,8 +131,9 @@ public class CertificateController {
      * @return no content
      */
     @DeleteMapping(value = "/{id}")
-    public CertificateDto remove(@PathVariable long id) {
+    public ResponseEntity<CertificateDto> remove(@PathVariable long id) {
         Certificate certificate = certificateService.remove(id);
-        return EntityConverter.map(certificate);
+        CertificateDto dto = EntityConverter.map(certificate);
+        return ResponseEntity.ok(dto);
     }
 }

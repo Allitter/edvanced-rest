@@ -16,3 +16,18 @@ INSERT INTO certificate_tag (id_certificate, id_tag) VALUES (3, 2);
 INSERT INTO certificate_tag (id_certificate, id_tag) VALUES (3, 3);
 INSERT INTO certificate_tag (id_certificate, id_tag) VALUES (4, 1);
 INSERT INTO certificate_tag (id_certificate, id_tag) VALUES (4, 3);
+
+INSERT INTO users (id, login, password) VALUES (1, 'den', '1111');
+INSERT INTO users (id, login, password) VALUES (2, 'oleg', '1111');
+INSERT INTO users (id, login, password) VALUES (3, 'vlados', '1111');
+
+INSERT INTO purchase (id, id_user, cost) VALUES (1, 1, 600);
+INSERT INTO purchase (id, id_user, cost) VALUES (2, 1, 80);
+INSERT INTO purchase (id, id_user, cost) VALUES (3, 2, 150);
+
+INSERT INTO purchase_certificate (id_purchase, id_certificate, cnt) VALUES (1, 1, 1);
+INSERT INTO purchase_certificate (id_purchase, id_certificate, cnt) VALUES (1, 2, 1);
+INSERT INTO purchase_certificate (id_purchase, id_certificate, cnt) VALUES (2, 4, 1);
+INSERT INTO purchase_certificate (id_purchase, id_certificate, cnt) VALUES (3, 3, 1);
+
+

@@ -9,8 +9,6 @@ import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSuppor
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-
 @Component
 public class PurchaseRepresentationalModelAssembler extends RepresentationModelAssemblerSupport<Purchase, PurchaseDto> {
     private final PurchaseLinkBuilder linkBuilder;
@@ -22,8 +20,7 @@ public class PurchaseRepresentationalModelAssembler extends RepresentationModelA
 
     @Override
     public PurchaseDto toModel(@NonNull Purchase purchase) {
-        PurchaseDto dto = EntityConverter.map(purchase);
-        dto.setCertificates(new ArrayList<>());
+        PurchaseDto dto = EntityConverter.mapPurchaseNoCertificates(purchase);
         return linkBuilder.buildLinksPaged(dto);
     }
 }

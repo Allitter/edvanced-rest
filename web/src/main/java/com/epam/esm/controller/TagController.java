@@ -53,17 +53,19 @@ public class TagController {
      * @return the tag with queried id {@link TagDto}
      */
     @GetMapping(value = "/{id}")
-    public TagDto findById(@PathVariable long id) {
+    public ResponseEntity<TagDto> findById(@PathVariable long id) {
         Tag tag = tagService.findById(id);
         TagDto dto = EntityConverter.map(tag);
-        return tagLinkBuilder.buildLinks(dto);
+        dto = tagLinkBuilder.buildLinks(dto);
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping(value = "/top-user/popular-tag")
-    public TagDto findMostFrequentTagOfUserWithHighestCostOfAllOrders() {
+    public ResponseEntity<TagDto> findMostFrequentTagOfUserWithHighestCostOfAllOrders() {
         Tag tag = tagService.findMostFrequentTagOfUserWithHighestCostOfAllOrders();
         TagDto dto = EntityConverter.map(tag);
-        return tagLinkBuilder.buildLinks(dto);
+        dto =tagLinkBuilder.buildLinks(dto);
+        return ResponseEntity.ok(dto);
     }
 
     /**
@@ -73,11 +75,12 @@ public class TagController {
      * @return the added tag {@link TagDto}
      */
     @PostMapping()
-    public TagDto add(@RequestBody TagDto dto) {
+    public ResponseEntity<TagDto> add(@RequestBody TagDto dto) {
         Tag tag = EntityConverter.map(dto);
         Tag result = tagService.add(tag);
         dto = EntityConverter.map(result);
-        return tagLinkBuilder.buildLinks(dto);
+        dto = tagLinkBuilder.buildLinks(dto);
+        return ResponseEntity.ok(dto);
     }
 
     /**
@@ -87,8 +90,9 @@ public class TagController {
      * @return no content
      */
     @DeleteMapping(value = "/{id}")
-    public TagDto remove(@PathVariable long id) {
+    public ResponseEntity<TagDto> remove(@PathVariable long id) {
         Tag tag = tagService.remove(id);
-        return EntityConverter.map(tag);
+        TagDto dto = EntityConverter.map(tag);
+        return ResponseEntity.ok(dto);
     }
 }

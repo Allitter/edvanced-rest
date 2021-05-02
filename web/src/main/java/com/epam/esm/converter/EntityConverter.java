@@ -67,6 +67,15 @@ public final class EntityConverter {
         return new TagDto(tag.getId(), tag.getName());
     }
 
+    public static PurchaseDto mapPurchaseNoCertificates(Purchase purchase) {
+        return new PurchaseDto(
+                purchase.getId(),
+                purchase.getUser().getId(),
+                purchase.getCost(),
+                new ArrayList<>(),
+                purchase.getCreateTime());
+    }
+
     public static PurchaseDto map(Purchase purchase) {
         List<PurchasesCertificateDto> certificates = purchase.getPurchaseCertificates()
                 .stream()

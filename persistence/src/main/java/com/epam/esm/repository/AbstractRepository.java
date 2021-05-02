@@ -3,23 +3,21 @@ package com.epam.esm.repository;
 import com.epam.esm.exception.SortArgumentException;
 import com.epam.esm.model.Model;
 import com.epam.esm.repository.query.NativeQuery;
-import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.query.QueryUtils;
+import org.springframework.data.mapping.PropertyReferenceException;
 
 import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public abstract class AbstractRepository<T extends Model> implements MainRepository<T> {
-
     @PersistenceContext(type = PersistenceContextType.TRANSACTION)
     protected final EntityManager entityManager;
 
@@ -28,6 +26,8 @@ public abstract class AbstractRepository<T extends Model> implements MainReposit
     }
 
     protected abstract Class<T> getEntityType();
+
+    protected abstract void fetchConnectedEntities(Root<T> root);
 
     @Override
     public T add(T model) {
@@ -59,20 +59,20 @@ public abstract class AbstractRepository<T extends Model> implements MainReposit
     }
 
     @Override
-    public Optional<T> queryFirst(Specification<T> specification) {
-        List<T> list = queryList(specification, Pageable.unpaged());
-        return Optional.ofNullable(DataAccessUtils.singleResult(list));
+    public Optional<T> queryFirst(Specification<T> specification, boolean eager) {
+        List<T> list = queryList(specification, Pageable.unpaged(), eager);
+        return list.stream().findFirst();
     }
 
     @Override
     public Optional<T> queryFirst(NativeQuery nativeQuery) {
         List<T> list = queryList(nativeQuery, Pageable.unpaged());
-        return Optional.ofNullable(DataAccessUtils.singleResult(list));
+        return list.stream().findFirst();
     }
 
     @Override
-    public Page<T> query(Specification<T> specification, Pageable pageable) {
-        List<T> items = queryList(specification, pageable);
+    public Page<T> query(Specification<T> specification, Pageable pageable, boolean eager) {
+        List<T> items = queryList(specification, pageable, eager);
         return new PageImpl<>(items, pageable, count(specification));
     }
 
@@ -82,6 +82,7 @@ public abstract class AbstractRepository<T extends Model> implements MainReposit
         return new PageImpl<>(items, pageable, count(nativeQuery));
     }
 
+    @Override
     public List<T> queryList(NativeQuery nativeQuery, Pageable pageable) {
         Query query = entityManager.createNativeQuery(nativeQuery.getQuery(), getEntityType());
 
@@ -93,46 +94,63 @@ public abstract class AbstractRepository<T extends Model> implements MainReposit
         return query.getResultList();
     }
 
-    public List<T> queryList(Specification<T> specification, Pageable pageable) {
+    @Override
+    public List<T> queryList(Specification<T> specification, Pageable pageable, boolean eager) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(getEntityType());
+
+        return eager
+                ? queryEager(specification, pageable, criteriaBuilder, criteriaQuery)
+                : queryLazy(specification, pageable, criteriaBuilder, criteriaQuery);
+    }
+
+    private List<T> queryEager(Specification<T> specification, Pageable pageable,
+                               CriteriaBuilder criteriaBuilder, CriteriaQuery<T> criteriaQuery) {
+        CriteriaQuery<Long> idQuery = criteriaBuilder.createQuery(Long.class);
+        Root<T> root = idQuery.from(getEntityType());
+        Predicate predicate = specification.toPredicate(root, idQuery, criteriaBuilder);
+
+        idQuery.select(root.get("id")).where(predicate);
+        trySort(pageable, criteriaBuilder, idQuery, root);
+        TypedQuery<Long> query = entityManager.createQuery(idQuery);
+        setResultPageIfPaged(pageable, query);
+        List<Long> ids = query.getResultList();
+
+        root = criteriaQuery.from(getEntityType());
+
+        fetchConnectedEntities(root);
+        criteriaQuery.select(root).where(root.get("id").in(ids));
+        return entityManager.createQuery(criteriaQuery).getResultList();
+    }
+
+    private List<T> queryLazy(Specification<T> specification, Pageable pageable,
+                              CriteriaBuilder criteriaBuilder, CriteriaQuery<T> criteriaQuery) {
+
         Root<T> root = criteriaQuery.from(getEntityType());
+        Predicate predicate = specification.toPredicate(root, criteriaQuery, criteriaBuilder);
+        criteriaQuery.select(root).where(predicate);
 
-        criteriaQuery.where(specification.toPredicate(root, criteriaQuery, criteriaBuilder));
-
-        if (pageable.isPaged() && pageable.getSort().isSorted()) {
-            List<Order> orders = getOrdersFromPageable(pageable, criteriaBuilder, root);
-            criteriaQuery.orderBy(orders);
-        }
-
+        trySort(pageable, criteriaBuilder, criteriaQuery, root);
         TypedQuery<T> query = entityManager.createQuery(criteriaQuery);
         setResultPageIfPaged(pageable, query);
 
         return query.getResultList();
     }
 
-    private void setResultPageIfPaged(Pageable pageable, Query query) {
-        if (pageable.isPaged()) {
-            int page = pageable.getPageNumber();
-            int pageSize = pageable.getPageSize();
-            query.setFirstResult(page * pageSize)
-                    .setMaxResults(pageSize);
+    private void trySort(Pageable pageable, CriteriaBuilder criteriaBuilder,
+                         CriteriaQuery<?> criteriaQuery, Root<?> root) {
+        try {
+            criteriaQuery.orderBy(QueryUtils.toOrders(pageable.getSort(), root, criteriaBuilder));
+        } catch (PropertyReferenceException e) {
+            throw new SortArgumentException(e.getPropertyName());
         }
     }
 
-    private List<Order> getOrdersFromPageable(Pageable pageable, CriteriaBuilder criteriaBuilder, Root<T> root) {
-        return pageable.getSort().stream()
-                .map(order -> getSortOrder(order, criteriaBuilder, root))
-                .collect(Collectors.toList());
-    }
-
-    private Order getSortOrder(Sort.Order order, CriteriaBuilder criteriaBuilder, Root<T> root) {
-        try {
-            return order.getDirection() == Sort.Direction.ASC
-                    ? criteriaBuilder.asc(root.get(order.getProperty()))
-                    : criteriaBuilder.desc(root.get(order.getProperty()));
-        } catch (IllegalArgumentException e) {
-            throw new SortArgumentException(order.getProperty());
+    private void setResultPageIfPaged(Pageable pageable, Query query) {
+        if (pageable.isPaged()) {
+            int offset = (int) pageable.getOffset();
+            query.setFirstResult(offset)
+                    .setMaxResults(pageable.getPageSize());
         }
     }
 

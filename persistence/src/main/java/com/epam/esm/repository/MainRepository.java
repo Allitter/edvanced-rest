@@ -49,11 +49,11 @@ public interface MainRepository<T extends Model> {
      * @param specification the specification of queried entities {@link Specification}
      * @return the list of entities matching the specification
      */
-    Page<T> query(Specification<T> specification, Pageable pageable);
+    Page<T> query(Specification<T> specification, Pageable pageable, boolean eager);
 
     Page<T> query(NativeQuery nativeQuery, Pageable pageable);
 
-    List<T> queryList(Specification<T> specification, Pageable pageable);
+    List<T> queryList(Specification<T> specification, Pageable pageable, boolean eager);
 
     List<T> queryList(NativeQuery nativeQuery, Pageable pageable);
 
@@ -63,7 +63,19 @@ public interface MainRepository<T extends Model> {
      * @param specification the specification of queried entities {@link Specification}
      * @return first of entities matching the specification or empty optional
      */
-    Optional<T> queryFirst(Specification<T> specification);
+    Optional<T> queryFirst(Specification<T> specification, boolean eager);
 
     Optional<T> queryFirst(NativeQuery nativeQuery);
+
+    default Page<T> query(Specification<T> specification, Pageable pageable) {
+        return query(specification, pageable, true);
+    }
+
+    default List<T> queryList(Specification<T> specification, Pageable pageable) {
+        return queryList(specification, pageable, true);
+    }
+
+    default Optional<T> queryFirst(Specification<T> specification) {
+        return queryFirst(specification, true);
+    }
 }

@@ -1,10 +1,12 @@
 package com.epam.esm.dto;
 
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
 
 import java.util.Objects;
 import java.util.StringJoiner;
 
+@Relation(collectionRelation = "tags")
 public class TagDto extends RepresentationModel<TagDto> {
     private long id;
     private String name;

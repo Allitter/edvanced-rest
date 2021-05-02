@@ -9,6 +9,7 @@ import com.epam.esm.repository.specification.common.ModelNotRemovedSpecification
 import com.epam.esm.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,8 +22,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findById(Long id) {
+        Specification<User> specification = new ModelByIdSpecification<User>(id).and(new ModelNotRemovedSpecification<>());
         return userRepository
-                .queryFirst(new ModelByIdSpecification<User>(id).and(new ModelNotRemovedSpecification<>()))
+                .queryFirst(specification)
                 .orElseThrow(EntityNotFoundException::new);
     }
 

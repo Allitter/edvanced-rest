@@ -7,8 +7,8 @@ import java.util.StringJoiner;
 @Entity
 public class PurchaseCertificate implements Model {
     @Id
-    @SequenceGenerator(name="pk_sequence",sequenceName="purchase_certificate_id_seq", allocationSize=5)
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="pk_sequence")
+    @SequenceGenerator(name="purchase_certificate_id_seq",sequenceName="purchase_certificate_id_seq", allocationSize=5)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="purchase_certificate_id_seq")
     private Long id;
     @ManyToOne
     @JoinColumn(name = "id_certificate")

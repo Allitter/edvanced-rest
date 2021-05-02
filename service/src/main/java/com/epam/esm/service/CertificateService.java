@@ -49,5 +49,5 @@ public interface CertificateService {
      * @param queryObject the query object
      * @return queried certificates
      */
-    Page<Certificate> findCertificatesByQueryObject(CertificateQueryObject queryObject, Pageable pageable);
+    Page<Certificate> findCertificatesByQueryObject(CertificateQueryObject queryObject, Pageable pageable, boolean eager);
 }

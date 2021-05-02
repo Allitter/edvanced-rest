@@ -1,6 +1,7 @@
 package com.epam.esm.dto;
 
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
 
+@Relation(collectionRelation = "purchases")
 public class PurchaseDto extends RepresentationModel<PurchaseDto> {
     private Long id;
     private Long idUser;

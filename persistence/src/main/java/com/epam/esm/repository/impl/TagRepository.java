@@ -5,6 +5,7 @@ import com.epam.esm.repository.AbstractRepository;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.Root;
 
 @Repository
 public class TagRepository extends AbstractRepository<Tag> {
@@ -16,5 +17,9 @@ public class TagRepository extends AbstractRepository<Tag> {
     @Override
     protected Class<Tag> getEntityType() {
         return Tag.class;
+    }
+
+    @Override
+    protected void fetchConnectedEntities(Root<Tag> root) { // nothing to fetch
     }
 }

@@ -9,6 +9,9 @@ import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSuppor
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @Component
 public class CertificateNoTagsRepresentationalModelAssembler extends RepresentationModelAssemblerSupport<Certificate, CertificateDto> {
     private final CertificateLinkBuilder linkBuilder;
@@ -21,6 +24,7 @@ public class CertificateNoTagsRepresentationalModelAssembler extends Representat
     @Override
     public CertificateDto toModel(@NonNull Certificate certificate) {
         CertificateDto dto = EntityConverter.mapCertificateNoTags(certificate);
+        dto.add(linkTo(methodOn(CertificateController.class).findCertificateTags(dto.getId())).withRel("tags"));
         return linkBuilder.buildLinksPaged(dto);
     }
 }

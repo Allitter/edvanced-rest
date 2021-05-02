@@ -7,8 +7,10 @@ import com.epam.esm.repository.impl.CertificateRepository;
 import com.epam.esm.repository.specification.certificate.CertificateByDescriptionSpecification;
 import com.epam.esm.repository.specification.certificate.CertificateByNameSpecification;
 import com.epam.esm.repository.specification.certificate.CertificateByTagNameSpecification;
+import com.epam.esm.repository.specification.certificate.adapter.CertificateSpecification;
 import com.epam.esm.repository.specification.common.AllSpecification;
 import com.epam.esm.repository.specification.common.ModelByIdSpecification;
+import com.epam.esm.repository.specification.purchase.adapter.PurchaseSpecification;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -104,12 +106,13 @@ class CertificateRepositoryTest {
 
     public static Object[][] queries() {
         return new Object[][]{
-                {new AllSpecification<>(), CERTIFICATES},
+                {CertificateSpecification.of(new AllSpecification<>()), CERTIFICATES},
                 {new CertificateByNameSpecification("first"), List.of(CERTIFICATES.get(FIRST_ELEMENT))},
                 {new CertificateByDescriptionSpecification("fourth"), List.of(CERTIFICATES.get(FOURTH_ELEMENT))},
-                {new CertificateByTagNameSpecification("second"), List.of(CERTIFICATES.get(SECOND_ELEMENT),
-                        CERTIFICATES.get(THIRD_ELEMENT))},
-                {new ModelByIdSpecification<Certificate>(FIRST_ELEMENT_ID), List.of(CERTIFICATES.get(FIRST_ELEMENT))},
+                {new CertificateByTagNameSpecification("second"),
+                        List.of(CERTIFICATES.get(SECOND_ELEMENT), CERTIFICATES.get(THIRD_ELEMENT))},
+                {CertificateSpecification.of(new ModelByIdSpecification<Certificate>(FIRST_ELEMENT_ID)),
+                        List.of(CERTIFICATES.get(FIRST_ELEMENT))},
         };
     }
 
@@ -143,14 +146,14 @@ class CertificateRepositoryTest {
 
     @Test
     @Rollback
-    void testRemoveShouldReturnNonEmptyOptionalIfDeletedCertificateFromDataSourceIfExists() {
+    void testRemoveShouldReturnNonEmptyOptionalIfDeletedCertificateFromDataSource() {
         Optional<Certificate> certificateOptional = certificateRepository.remove(FIRST_ELEMENT_ID);
         assertTrue(certificateOptional.isPresent());
     }
 
     @Test
     @Rollback
-    void testRemoveShouldReturnEmptyOptionalIfNotDeletedCertificateFromDataSourceIfExists() {
+    void testRemoveShouldReturnEmptyOptionalIfNotDeletedCertificateFromDataSource() {
         Optional<Certificate> certificateOptional = certificateRepository.remove(NON_EXISTING_ID);
 
         assertTrue(certificateOptional.isEmpty());
@@ -159,9 +162,9 @@ class CertificateRepositoryTest {
     @ParameterizedTest
     @MethodSource("queries")
     @Rollback
-    void testQueryShouldReturnListOfCertificatesMatchingTheSpecification(Specification<Certificate> specification,
+    void testQueryShouldReturnListOfCertificatesMatchingTheSpecification(RepositorySpecification<Certificate> specification,
                                                                          List<Certificate> expected) {
-        Page<Certificate> actual = certificateRepository.query(specification, Pageable.unpaged());
+        Page<Certificate> actual = certificateRepository.query(specification, Pageable.unpaged(), true);
 
         assertEquals(expected, actual.getContent());
     }
@@ -170,8 +173,10 @@ class CertificateRepositoryTest {
     @Rollback
     void testQuerySingleShouldReturnFirstResultForSpecification() {
         Certificate expected = CERTIFICATES.get(FIRST_ELEMENT);
+        RepositorySpecification<Certificate> specification =
+                CertificateSpecification.of(new ModelByIdSpecification<>(FIRST_ELEMENT_ID));
 
-        Certificate actual = certificateRepository.queryFirst(new ModelByIdSpecification<>(FIRST_ELEMENT_ID)).get();
+        Certificate actual = certificateRepository.queryFirst(specification).get();
 
         assertEquals(expected, actual);
     }

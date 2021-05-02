@@ -54,23 +54,25 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public UserDto findById(@PathVariable Long id) {
+    public ResponseEntity<UserDto> findById(@PathVariable Long id) {
         User user = userService.findById(id);
         UserDto dto = EntityConverter.map(user);
-        return userLinkBuilder.buildLinks(dto);
+        dto = userLinkBuilder.buildLinks(dto);
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping("/{id}/purchases")
-    public PurchaseDto addPurchase(@PathVariable Long id, @RequestBody PurchaseDto purchaseDto) {
+    public ResponseEntity<PurchaseDto> addPurchase(@PathVariable Long id, @RequestBody PurchaseDto purchaseDto) {
         Purchase purchase = EntityConverter.map(purchaseDto);
         purchase = purchaseService.add(id, purchase);
         PurchaseDto dto = EntityConverter.map(purchase);
-        return purchaseLinkBuilder.buildLinks(dto);
+        dto = purchaseLinkBuilder.buildLinks(dto);
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping(value = "/{id}/purchases")
     public ResponseEntity<PagedModel<PurchaseDto>> findUserPurchases(@PathVariable Long id, Pageable pageable) {
-        Page<Purchase> orders = purchaseService.findByUserId(id, pageable);
+        Page<Purchase> orders = purchaseService.findByUserId(id, pageable, false);
         PagedModel<PurchaseDto> dtos = pagePurchasedResourcesAssembler.toModel(orders, purchaseModelAssembler);
         return ResponseEntity.ok(dtos);
     }

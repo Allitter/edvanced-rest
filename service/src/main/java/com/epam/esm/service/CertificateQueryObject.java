@@ -1,16 +1,16 @@
 package com.epam.esm.service;
 
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonAlias;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
 
 public class CertificateQueryObject {
-    private final String name;
-    @SerializedName(value = "tagName", alternate = "tagName")
-    private final List<String> tagNames;
-    private final String description;
+    private String name;
+    @JsonAlias({"tagName"})
+    private List<String> tagNames;
+    private String description;
 
     public CertificateQueryObject(String name, List<String> tagName,
                                   String description) {
@@ -23,12 +23,24 @@ public class CertificateQueryObject {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public List<String> getTagNames() {
         return tagNames;
     }
 
+    public void setTagNames(List<String> tagName) {
+        this.tagNames = tagName;
+    }
+
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override

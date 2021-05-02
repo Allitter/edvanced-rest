@@ -8,8 +8,8 @@ import java.util.StringJoiner;
 @Table(name = "tag")
 public class Tag implements Model {
     @Id
-    @SequenceGenerator(name="pk_sequence",sequenceName="tag_id_seq", allocationSize=5)
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="pk_sequence")
+    @SequenceGenerator(name="tag_id_seq",sequenceName="tag_id_seq", allocationSize=5)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="tag_id_seq")
     private Long id;
     @Column(name = "name", length = 64, nullable = false, unique = true)
     private String name;

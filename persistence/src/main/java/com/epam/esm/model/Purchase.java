@@ -10,8 +10,8 @@ import java.util.StringJoiner;
 @Table(name = "purchase")
 public class Purchase implements Model {
     @Id
-    @SequenceGenerator(name="pk_sequence",sequenceName="purchase_id_seq", allocationSize=5)
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="pk_sequence")
+    @SequenceGenerator(name="purchase_id_seq",sequenceName="purchase_id_seq", allocationSize=5)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="purchase_id_seq")
     private Long id;
     @Column(name = "cost", nullable = false)
     private int cost;
@@ -20,7 +20,7 @@ public class Purchase implements Model {
     @ManyToOne
     @JoinColumn(name = "id_user")
     private User user;
-    @OneToMany(mappedBy = "purchase", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "purchase", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private List<PurchaseCertificate> purchaseCertificates;
     @Column(name = "removed", columnDefinition = "boolean default false")
     private boolean removed;

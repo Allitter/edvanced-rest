@@ -15,13 +15,20 @@ public class PurchaseLinkBuilder implements LinkBuilder<PurchaseDto> {
 
     @Override
     public PurchaseDto buildLinks(PurchaseDto dto) {
+        dto.getCertificates().forEach(certificate -> certificate
+                .add(linkTo(methodOn(PurchaseController.class).findById(dto.getId())).withRel("all"))
+                .add(linkTo(methodOn(PurchaseController.class)
+                        .findPurchaseCertificate(dto.getId(), certificate.getId())).withSelfRel()));
+
         return dto.add(selfLink(dto))
-                .add(linkToAll(dto.getIdUser()));
+                .add(linkToAll(dto.getIdUser()))
+                .add(linkToCertificates(dto.getId()));
     }
 
     @Override
     public PurchaseDto buildLinksPaged(PurchaseDto dto) {
-        return dto.add(selfLink(dto));
+        return dto.add(selfLink(dto))
+                .add(linkToCertificates(dto.getId()));
     }
 
     private Link selfLink(PurchaseDto dto) {
@@ -34,4 +41,7 @@ public class PurchaseLinkBuilder implements LinkBuilder<PurchaseDto> {
         return linkTo(methodOn(UserController.class).findUserPurchases(idUser, null)).withRel("all");
     }
 
+    private Link linkToCertificates(long idPurchase) {
+        return linkTo(methodOn(PurchaseController.class).findPurchaseCertificates(idPurchase)).withRel("certificates");
+    }
 }

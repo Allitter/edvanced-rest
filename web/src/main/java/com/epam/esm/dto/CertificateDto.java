@@ -1,13 +1,20 @@
 package com.epam.esm.dto;
 
+import com.epam.esm.util.ResourceBundleMessage;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
 import java.util.*;
 
+@Relation(collectionRelation = "certificates")
 public class CertificateDto extends RepresentationModel<CertificateDto> {
     private long id;
+    @NotBlank(message = ResourceBundleMessage.CERTIFICATE_NAME_EMPTY)
+    @NotEmpty
     private String name;
     private String description;
     private Integer price;

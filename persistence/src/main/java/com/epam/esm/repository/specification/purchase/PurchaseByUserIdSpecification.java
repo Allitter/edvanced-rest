@@ -1,4 +1,4 @@
-package com.epam.esm.repository.specification.order;
+package com.epam.esm.repository.specification.purchase;
 
 import com.epam.esm.model.Purchase;
 import org.springframework.data.jpa.domain.Specification;
@@ -8,10 +8,10 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-public class OrderByUserIdSpecification implements Specification<Purchase> {
+public class PurchaseByUserIdSpecification implements Specification<Purchase> {
     private final Long idUser;
 
-    public OrderByUserIdSpecification(Long idUser) {
+    public PurchaseByUserIdSpecification(Long idUser) {
         this.idUser = idUser;
     }
 

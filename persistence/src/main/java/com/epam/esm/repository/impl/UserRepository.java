@@ -6,6 +6,7 @@ import com.epam.esm.repository.specification.common.ModelByIdSpecification;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.Root;
 import java.util.Optional;
 
 @Repository
@@ -18,6 +19,10 @@ public class UserRepository extends AbstractRepository<User> {
     @Override
     protected Class<User> getEntityType() {
         return User.class;
+    }
+
+    @Override
+    protected void fetchConnectedEntities(Root<User> root) { // yet nothing to fetch
     }
 
     @Override
