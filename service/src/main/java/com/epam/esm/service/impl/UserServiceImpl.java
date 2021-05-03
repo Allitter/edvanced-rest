@@ -11,8 +11,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(isolation = Isolation.REPEATABLE_READ)
 public class UserServiceImpl implements UserService {
     private final MainRepository<User> userRepository;
 
@@ -22,7 +25,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findById(Long id) {
-        Specification<User> specification = new ModelByIdSpecification<User>(id).and(new ModelNotRemovedSpecification<>());
+        Specification<User> specification =
+                new ModelByIdSpecification<User>(id)
+                        .and(new ModelNotRemovedSpecification<>());
+
         return userRepository
                 .queryFirst(specification)
                 .orElseThrow(EntityNotFoundException::new);

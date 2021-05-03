@@ -8,6 +8,8 @@ import com.epam.esm.model.Purchase;
 import com.epam.esm.model.User;
 import com.epam.esm.service.PurchaseService;
 import com.epam.esm.service.UserService;
+import com.epam.esm.validation.ValidationGroup;
+import com.epam.esm.validation.ValidationGroup.Create;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -15,6 +17,7 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -62,7 +65,8 @@ public class UserController {
     }
 
     @PostMapping("/{id}/purchases")
-    public ResponseEntity<PurchaseDto> addPurchase(@PathVariable Long id, @RequestBody PurchaseDto purchaseDto) {
+    public ResponseEntity<PurchaseDto> addPurchase(@PathVariable Long id,
+                                                   @Validated(Create.class) @RequestBody PurchaseDto purchaseDto) {
         Purchase purchase = EntityConverter.map(purchaseDto);
         purchase = purchaseService.add(id, purchase);
         PurchaseDto dto = EntityConverter.map(purchase);

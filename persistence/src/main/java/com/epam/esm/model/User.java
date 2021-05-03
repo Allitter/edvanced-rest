@@ -1,15 +1,19 @@
 package com.epam.esm.model;
 
+import com.epam.esm.audit.EntityActionListener;
+
 import javax.persistence.*;
 import java.util.Objects;
 import java.util.StringJoiner;
 
 @Entity
+@EntityListeners(EntityActionListener.class)
 @Table(name = "users")
 public class User implements Model {
+    private static final int HASH_CODE = 19;
     @Id
-    @SequenceGenerator(name="user_id_seq", sequenceName="user_id_seq", allocationSize=5)
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="user_id_seq")
+    @SequenceGenerator(name = "user_id_seq", sequenceName = "user_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_seq")
     private Long id;
     @Column(name = "login", length = 64, unique = true, nullable = false)
     private String login;
@@ -73,16 +77,14 @@ public class User implements Model {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof User)) return false;
         User user = (User) o;
-        return removed == user.removed
-                && Objects.equals(id, user.id)
-                && Objects.equals(login, user.login)
-                && Objects.equals(password, user.password);
+        return Objects.equals(id, user.id)
+                && Objects.equals(login, user.login);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, login, password, removed);
+        return HASH_CODE;
     }
 }

@@ -1,23 +1,24 @@
 package com.epam.esm.model;
 
-
+import com.epam.esm.audit.EntityActionListener;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.*;
 
-import static java.util.Objects.hash;
-
-
 @Entity
+@EntityListeners(EntityActionListener.class)
 @Table(name = "certificate")
 public class Certificate implements Model {
+    private static final int HASH_CODE = 13;
+
     @Id
-    @SequenceGenerator(name="certificate_id_seq",sequenceName="certificate_id_seq", allocationSize=5)
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="certificate_id_seq")
-    @Column(name="id", unique=true, nullable=false)
+    @SequenceGenerator(name = "certificate_id_seq", sequenceName = "certificate_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "certificate_id_seq")
+    @Column(name = "id", unique = true, nullable = false)
     private Long id;
     @Column(name = "name", length = 255, nullable = false)
     private String name;
@@ -27,16 +28,18 @@ public class Certificate implements Model {
     private Integer price;
     @Column(name = "duration", nullable = false)
     private Integer duration;
-    @Column(name = "create_date", nullable = false,  updatable = false)
+    @Column(name = "create_date", nullable = false, updatable = false)
     private LocalDate createDate;
     @Column(name = "last_update_date", nullable = false)
     private LocalDate lastUpdateDate;
+
     @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     @JoinTable(
             name = "certificate_tag",
             joinColumns = {@JoinColumn(name = "id_certificate")},
             inverseJoinColumns = {@JoinColumn(name = "id_tag")}
     )
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private List<Tag> tags;
     @Column(name = "removed", columnDefinition = "boolean default false")
     private boolean removed;
@@ -62,6 +65,7 @@ public class Certificate implements Model {
         return id;
     }
 
+    @Override
     public void setId(Long id) {
         this.id = id;
     }
@@ -119,7 +123,7 @@ public class Certificate implements Model {
     }
 
     public void setTags(List<Tag> tags) {
-        if (tags != null) {
+        if (CollectionUtils.isNotEmpty(tags)) {
             this.tags = tags;
         }
     }
@@ -130,25 +134,6 @@ public class Certificate implements Model {
 
     public void setRemoved(boolean removed) {
         this.removed = removed;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Certificate that = (Certificate) o;
-        return Objects.equals(name, that.name)
-                && Objects.equals(description, that.description)
-                && Objects.equals(price, that.price)
-                && Objects.equals(duration, that.duration)
-                && Objects.equals(createDate, that.createDate)
-                && Objects.equals(lastUpdateDate, that.lastUpdateDate)
-                && Objects.equals(tags, that.tags);
-    }
-
-    @Override
-    public int hashCode() {
-        return hash(name, description, price, duration, createDate, lastUpdateDate, tags);
     }
 
     @Override
@@ -163,6 +148,19 @@ public class Certificate implements Model {
                 .add("lastUpdateDate=" + lastUpdateDate)
                 .add("tags=" + tags)
                 .toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Certificate)) return false;
+        Certificate that = (Certificate) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return HASH_CODE;
     }
 
     public static class Builder {
@@ -256,6 +254,7 @@ public class Certificate implements Model {
         }
 
         public Builder setRemoved(boolean removed) {
+            this.removed = removed;
             return this;
         }
 

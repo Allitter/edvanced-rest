@@ -5,6 +5,7 @@ subprojects {
 
     ext {
         springBootVersion = "2.4.4"
+        hibernateVersion = "5.4.31.Final"
         postgresVersion = "42.2.19"
         h2Version = "1.4.200"
         jaxbVersion = "2.3.2"

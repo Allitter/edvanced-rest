@@ -1,14 +1,19 @@
 package com.epam.esm.model;
 
+import com.epam.esm.audit.EntityActionListener;
+
 import javax.persistence.*;
 import java.util.Objects;
 import java.util.StringJoiner;
 
 @Entity
+@EntityListeners(EntityActionListener.class)
+@Table(name = "purchase_certificate")
 public class PurchaseCertificate implements Model {
+    private static final int HASH_CODE = 14;
     @Id
-    @SequenceGenerator(name="purchase_certificate_id_seq",sequenceName="purchase_certificate_id_seq", allocationSize=5)
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="purchase_certificate_id_seq")
+    @SequenceGenerator(name = "purchase_certificate_id_seq", sequenceName = "purchase_certificate_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "purchase_certificate_id_seq")
     private Long id;
     @ManyToOne
     @JoinColumn(name = "id_certificate")
@@ -61,7 +66,6 @@ public class PurchaseCertificate implements Model {
         return new StringJoiner(", ", PurchaseCertificate.class.getSimpleName() + "[", "]")
                 .add("id=" + id)
                 .add("certificate=" + certificate)
-                .add("purchase=" + purchase)
                 .add("count=" + count)
                 .toString();
     }
@@ -69,16 +73,15 @@ public class PurchaseCertificate implements Model {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof PurchaseCertificate)) return false;
         PurchaseCertificate that = (PurchaseCertificate) o;
-        return count == that.count
-                && Objects.equals(id, that.id)
+        return Objects.equals(id, that.id)
                 && Objects.equals(certificate, that.certificate)
                 && Objects.equals(purchase, that.purchase);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, certificate, purchase, count);
+        return HASH_CODE;
     }
 }

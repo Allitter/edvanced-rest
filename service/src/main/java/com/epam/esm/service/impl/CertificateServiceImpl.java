@@ -1,7 +1,6 @@
 package com.epam.esm.service.impl;
 
 import com.epam.esm.exception.EntityNotFoundException;
-import com.epam.esm.exception.ValidationException;
 import com.epam.esm.model.Certificate;
 import com.epam.esm.model.Tag;
 import com.epam.esm.repository.MainRepository;
@@ -13,9 +12,7 @@ import com.epam.esm.repository.specification.common.ModelNotRemovedSpecification
 import com.epam.esm.repository.specification.tag.TagNameInSpecification;
 import com.epam.esm.service.CertificateQueryObject;
 import com.epam.esm.service.CertificateService;
-import com.epam.esm.validator.CertificateValidator;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,14 +30,11 @@ import java.util.stream.Collectors;
 public class CertificateServiceImpl implements CertificateService {
     private final MainRepository<Tag> tagRepository;
     private final MainRepository<Certificate> repository;
-    private final CertificateValidator validator;
 
     public CertificateServiceImpl(MainRepository<Certificate> repository,
-                                  MainRepository<Tag> tagRepository,
-                                  CertificateValidator validator) {
+                                  MainRepository<Tag> tagRepository) {
         this.repository = repository;
         this.tagRepository = tagRepository;
-        this.validator = validator;
     }
 
     @Override
@@ -53,8 +47,6 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public Certificate update(Certificate certificate) {
-        throwExceptionIfNotValid(validator.validateForUpdate(certificate));
-
         Specification<Certificate> specification = new ModelByIdSpecification<>(certificate.getId());
         Optional<Certificate> optional = repository.queryFirst(specification);
         Certificate oldCertificate = optional.orElseThrow(EntityNotFoundException::new);
@@ -72,8 +64,6 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public Certificate add(Certificate certificate) {
-        throwExceptionIfNotValid(validator.validateForCreate(certificate));
-
         List<Tag> tags = CollectionUtils.isNotEmpty(certificate.getTags())
                 ? ensureTagsInRepo(certificate.getTags())
                 : Collections.emptyList();
@@ -85,12 +75,6 @@ public class CertificateServiceImpl implements CertificateService {
                 .build();
 
         return repository.add(certificate);
-    }
-
-    private void throwExceptionIfNotValid(Map<String, String> validationFails) {
-        if (MapUtils.isNotEmpty(validationFails)) {
-            throw new ValidationException(validationFails);
-        }
     }
 
     private List<Tag> ensureTagsInRepo(List<Tag> tags) {
@@ -107,13 +91,14 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    @Transactional
     public Certificate remove(long id) {
         return repository.remove(id).orElseThrow(EntityNotFoundException::new);
     }
 
     @Override
-    public Page<Certificate> findCertificatesByQueryObject(CertificateQueryObject queryObject, Pageable pageable, boolean eager) {
+    public Page<Certificate> findCertificatesByQueryObject(CertificateQueryObject queryObject,
+                                                           Pageable pageable, boolean eager) {
+
         Specification<Certificate> specification = new ModelNotRemovedSpecification<>();
         if (StringUtils.isNotBlank(queryObject.getName())) {
             specification = specification.and(new CertificateByNameSpecification(queryObject.getName()));

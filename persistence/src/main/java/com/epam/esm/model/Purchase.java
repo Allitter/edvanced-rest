@@ -1,5 +1,7 @@
 package com.epam.esm.model;
 
+import com.epam.esm.audit.EntityActionListener;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -7,11 +9,14 @@ import java.util.Objects;
 import java.util.StringJoiner;
 
 @Entity
+@EntityListeners(EntityActionListener.class)
 @Table(name = "purchase")
 public class Purchase implements Model {
+    private static final int HASH_CODE = 3;
+
     @Id
-    @SequenceGenerator(name="purchase_id_seq",sequenceName="purchase_id_seq", allocationSize=5)
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="purchase_id_seq")
+    @SequenceGenerator(name = "purchase_id_seq", sequenceName = "purchase_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "purchase_id_seq")
     private Long id;
     @Column(name = "cost", nullable = false)
     private int cost;
@@ -100,18 +105,13 @@ public class Purchase implements Model {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Purchase)) return false;
         Purchase purchase = (Purchase) o;
-        return cost == purchase.cost
-                && removed == purchase.removed
-                && Objects.equals(id, purchase.id)
-                && Objects.equals(createTime, purchase.createTime)
-                && Objects.equals(user, purchase.user)
-                && Objects.equals(purchaseCertificates, purchase.purchaseCertificates);
+        return Objects.equals(id, purchase.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, cost, createTime, user, purchaseCertificates, removed);
+        return HASH_CODE;
     }
 }

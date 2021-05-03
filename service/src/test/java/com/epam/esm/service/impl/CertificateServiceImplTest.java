@@ -4,11 +4,9 @@ import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.model.Certificate;
 import com.epam.esm.model.Tag;
 import com.epam.esm.repository.MainRepository;
-import com.epam.esm.repository.specification.certificate.adapter.CertificateSpecification;
 import com.epam.esm.repository.specification.common.ModelByIdSpecification;
 import com.epam.esm.repository.specification.tag.TagByNameSpecification;
 import com.epam.esm.service.CertificateQueryObject;
-import com.epam.esm.validator.CertificateValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.AdditionalAnswers;
@@ -19,7 +17,8 @@ import org.springframework.data.jpa.domain.Specification;
 import java.time.LocalDate;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doAnswer;
 
@@ -32,8 +31,8 @@ class CertificateServiceImplTest {
     private static final int DURATION = 100;
     private static final LocalDate CREATE_DATE = LocalDate.now();
     private static final LocalDate LAST_UPDATE_DATE = LocalDate.now();
-    private static final Tag FIRST_TAG = new Tag(1, "tag");
-    private static final Tag SECOND_TAG = new Tag(2, "another tag");
+    private static final Tag FIRST_TAG = new Tag(1L, "tag");
+    private static final Tag SECOND_TAG = new Tag(2L, "another tag");
     private static final Set<Tag> TAGS = Set.of(FIRST_TAG, SECOND_TAG);
     private static final Certificate CERTIFICATE = new Certificate.Builder()
             .setId(ID)
@@ -57,8 +56,7 @@ class CertificateServiceImplTest {
 
     private final MainRepository<Certificate> certificateRepository = Mockito.mock(MainRepository.class);
     private final MainRepository<Tag> tagRepository = Mockito.mock(MainRepository.class);
-    private final CertificateValidator certificateValidator = Mockito.mock(CertificateValidator.class);
-    private final CertificateServiceImpl service = new CertificateServiceImpl(certificateRepository, tagRepository, certificateValidator);
+    private final CertificateServiceImpl service = new CertificateServiceImpl(certificateRepository, tagRepository);
 
     @Test
     void testFindByIdShouldReturnCertificateWithQueriedIdIfSuchExist() {
@@ -73,20 +71,18 @@ class CertificateServiceImplTest {
     @Test
     void testAddShouldAddCertificateToRepository() {
         Mockito.when(certificateRepository.add(CERTIFICATE)).thenReturn(CERTIFICATE);
-        Mockito.when(certificateValidator.validateForCreate(CERTIFICATE)).thenReturn(Collections.emptyMap());
         Mockito.when(tagRepository.queryFirst(Mockito.isA(TagByNameSpecification.class))).thenReturn(Optional.empty());
         doAnswer(AdditionalAnswers.returnsFirstArg()).when(tagRepository).add(any());
 
         Certificate actual = service.add(CERTIFICATE);
         Assertions.
-        assertEquals(CERTIFICATE, actual);
+                assertEquals(CERTIFICATE, actual);
     }
 
     @Test
     void TestUpdateShouldUpdateCertificate() {
         int newPrice = 1000;
         Certificate certificate = new Certificate.Builder(CERTIFICATE).setLastUpdateDate(LocalDate.now()).setPrice(newPrice).build();
-        Mockito.when(certificateValidator.validateForCreate(certificate)).thenReturn(Collections.emptyMap());
         Mockito.when(certificateRepository.update(certificate)).thenReturn(certificate);
         Mockito.when(certificateRepository.queryFirst(isA(ModelByIdSpecification.class)))
                 .thenReturn(Optional.of(CERTIFICATE));
@@ -100,8 +96,7 @@ class CertificateServiceImplTest {
 
     @Test
     void TestUpdateShouldThrowExceptionIfCertificateNotPresent() {
-        Mockito.when(certificateValidator.validateForCreate(Mockito.any())).thenReturn(Collections.emptyMap());
-        Mockito.when(certificateRepository.queryFirst(isA(CertificateSpecification.class)))
+        Mockito.when(certificateRepository.queryFirst(isA(Specification.class)))
                 .thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> service.update(CERTIFICATE));
