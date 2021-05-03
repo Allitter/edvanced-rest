@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Transactional(isolation = Isolation.REPEATABLE_READ)
 public class PurchaseServiceImpl implements PurchaseService {
     private final UserService userService;
     private final CertificateService certificateService;
@@ -56,7 +58,6 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     @Override
-    @Transactional
     public Purchase add(Long idUser, Purchase purchase) {
         List<PurchaseCertificate> compressedPurchaseCertificates
                 = compressPurchaseCertificates(purchase.getPurchaseCertificates());
@@ -68,7 +69,8 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchaseCertificate.setPurchase(purchase);
         });
 
-        int cost = purchase.getPurchaseCertificates().stream()
+        int cost = purchase.getPurchaseCertificates()
+                .stream()
                 .mapToInt(orderCertificate -> {
                     int price = orderCertificate.getCertificate().getPrice();
                     int count = orderCertificate.getCount();
@@ -85,7 +87,9 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     private List<PurchaseCertificate> compressPurchaseCertificates(List<PurchaseCertificate> purchaseCertificates) {
         Map<Long, PurchaseCertificate> purchaseCertificateMap = new HashMap<>(); // key is certificate id
-        purchaseCertificates.forEach(purchaseCertificate -> putToMapOrCombineCount(purchaseCertificateMap, purchaseCertificate));
+        purchaseCertificates.forEach(purchaseCertificate ->
+                putToMapOrCombineCount(purchaseCertificateMap, purchaseCertificate));
+
         return new ArrayList<>(purchaseCertificateMap.values());
     }
 

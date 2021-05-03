@@ -5,9 +5,21 @@ DROP TABLE IF EXISTS certificate;
 DROP TABLE IF EXISTS tag;
 DROP TABLE IF EXISTS users;
 
+drop sequence if exists certificate_id_seq;
+drop sequence if exists purchase_certificate_id_seq;
+drop sequence if exists purchase_id_seq;
+drop sequence if exists tag_id_seq;
+drop sequence if exists users_id_seq;
+
+create sequence certificate_id_seq increment 1 start 6;
+create sequence purchase_certificate_id_seq increment 5 start 6;
+create sequence purchase_id_seq increment 1 start 6;
+create sequence tag_id_seq increment 5 start 6;
+create sequence users_id_seq increment 1 start 6;
+
 create TABLE certificate
 (
-    id               INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    id               INT default certificate_id_seq.nextval PRIMARY KEY,
     name             VARCHAR(255),
     description      VARCHAR(255),
     price            INT,
@@ -19,7 +31,7 @@ create TABLE certificate
 
 create TABLE tag
 (
-    id   INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    id   INT default tag_id_seq.nextval PRIMARY KEY,
     name VARCHAR(255)       NOT NULL UNIQUE
 );
 
@@ -37,7 +49,7 @@ create TABLE certificate_tag
 
 create TABLE users
 (
-    id       INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    id       INT default users_id_seq.nextval PRIMARY KEY,
     login    VARCHAR(255)       NOT NULL UNIQUE,
     password VARCHAR(255)       NOT NULL,
     removed          bool DEFAULT false
@@ -45,7 +57,7 @@ create TABLE users
 
 create TABLE purchase
 (
-    id      INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    id      INT default purchase_id_seq.nextval PRIMARY KEY,
     id_user INT NOT NULL,
     create_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     cost INT DEFAULT 0,
@@ -56,7 +68,7 @@ create TABLE purchase
 
 create TABLE purchase_certificate
 (
-    id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    id INT default purchase_certificate_id_seq.nextval PRIMARY KEY,
     id_purchase       INT NOT NULL,
     id_certificate INT NOT NULL,
     cnt INT NOT NULL,

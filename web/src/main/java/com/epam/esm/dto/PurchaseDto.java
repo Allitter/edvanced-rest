@@ -3,6 +3,7 @@ package com.epam.esm.dto;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,18 +14,19 @@ import java.util.StringJoiner;
 public class PurchaseDto extends RepresentationModel<PurchaseDto> {
     private Long id;
     private Long idUser;
-    private int cost;
+    private Integer cost;
+    @Valid
     private List<PurchasesCertificateDto> certificates;
     private LocalDateTime createTime;
 
-    public PurchaseDto(Long id, Long idUser, int cost, List<PurchasesCertificateDto> certificates, LocalDateTime createTime) {
+    public PurchaseDto(Long id, Long idUser, Integer cost,
+                       List<PurchasesCertificateDto> certificates,
+                       LocalDateTime createTime) {
         this.id = id;
         this.idUser = idUser;
         this.cost = cost;
         this.createTime = createTime;
-        this.certificates = certificates == null
-                ? new ArrayList<>()
-                : certificates;
+        this.certificates = certificates == null ? new ArrayList<>() : certificates;
     }
 
     public Long getId() {
@@ -43,11 +45,11 @@ public class PurchaseDto extends RepresentationModel<PurchaseDto> {
         this.idUser = idUser;
     }
 
-    public int getCost() {
+    public Integer getCost() {
         return cost;
     }
 
-    public void setCost(int cost) {
+    public void setCost(Integer cost) {
         this.cost = cost;
     }
 
@@ -84,7 +86,7 @@ public class PurchaseDto extends RepresentationModel<PurchaseDto> {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         PurchaseDto purchaseDto = (PurchaseDto) o;
-        return cost == purchaseDto.cost
+        return cost.equals(purchaseDto.cost)
                 && Objects.equals(id, purchaseDto.id)
                 && Objects.equals(idUser, purchaseDto.idUser)
                 && Objects.equals(certificates, purchaseDto.certificates)

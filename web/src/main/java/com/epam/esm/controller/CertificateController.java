@@ -10,6 +10,8 @@ import com.epam.esm.model.Certificate;
 import com.epam.esm.model.Tag;
 import com.epam.esm.service.CertificateQueryObject;
 import com.epam.esm.service.CertificateService;
+import com.epam.esm.validation.ValidationGroup.Create;
+import com.epam.esm.validation.ValidationGroup.Update;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -17,9 +19,9 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -99,7 +101,7 @@ public class CertificateController {
      * @return the {@link CertificateDto} of added certificate
      */
     @PostMapping()
-    public ResponseEntity<CertificateDto> add(@RequestBody CertificateDto dto) {
+    public ResponseEntity<CertificateDto> add(@Validated(Create.class) @RequestBody CertificateDto dto) {
         Certificate certificate = EntityConverter.map(dto);
         Certificate result = certificateService.add(certificate);
         CertificateDto certificateDto = EntityConverter.map(result);
@@ -115,7 +117,8 @@ public class CertificateController {
      * @return the updated certificate {@link CertificateDto}
      */
     @PutMapping(value = "/{id}")
-    public ResponseEntity<CertificateDto> update(@PathVariable long id, @Valid @RequestBody CertificateDto dto) {
+    public ResponseEntity<CertificateDto> update(@PathVariable long id,
+                                                 @Validated(Update.class) @RequestBody CertificateDto dto) {
         dto.setId(id);
         Certificate certificate = EntityConverter.map(dto);
         Certificate updated = certificateService.update(certificate);

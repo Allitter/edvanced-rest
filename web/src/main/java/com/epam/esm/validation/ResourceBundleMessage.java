@@ -1,4 +1,4 @@
-package com.epam.esm.util;
+package com.epam.esm.validation;
 
 public final class ResourceBundleMessage {
     public static final String BAD_REQUEST = "bad.request";
@@ -17,6 +17,9 @@ public final class ResourceBundleMessage {
     public static final String CERTIFICATE_PRICE_FORMAT = "certificate.price.format";
     public static final String CERTIFICATE_DURATION_EMPTY = "certificate.duration.empty";
     public static final String CERTIFICATE_DURATION_FORMAT = "certificate.duration.format";
+    public static final String CERTIFICATE_PURCHASE_COUNT_EMPTY = "certificate.purchase.count.empty";
+    public static final String CERTIFICATE_PURCHASE_COUNT_FORMAT = "certificate.purchase.count.format";
+    public static final String CERTIFICATE_PURCHASE_ID_EMPTY = "certificate.purchase.id.empty";
 
     private ResourceBundleMessage() {
     }

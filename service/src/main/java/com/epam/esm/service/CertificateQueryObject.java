@@ -12,8 +12,7 @@ public class CertificateQueryObject {
     private List<String> tagNames;
     private String description;
 
-    public CertificateQueryObject(String name, List<String> tagName,
-                                  String description) {
+    public CertificateQueryObject(String name, List<String> tagName, String description) {
         this.name = name;
         this.tagNames = tagName;
         this.description = description;

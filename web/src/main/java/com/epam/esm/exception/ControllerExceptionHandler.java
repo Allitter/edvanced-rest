@@ -1,6 +1,7 @@
 package com.epam.esm.exception;
 
-import com.epam.esm.util.ResourceBundleMessage;
+import com.epam.esm.validation.ResourceBundleMessage;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.TypeMismatchException;
@@ -16,11 +17,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class ControllerExceptionHandler {
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final Pattern HTTP_MESSAGE_NOT_READABLE_EXCEPTION_VALUE_PATTERN = Pattern.compile("\".*?\"");
     private final MessageSource messageSource;
 
     public ControllerExceptionHandler(MessageSource messageSource) {
@@ -58,9 +63,27 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ExceptionResponse> handleParseException(HttpMessageNotReadableException e, Locale locale) {
         LOGGER.error(e);
-        String message = messageSource.getMessage(ResourceBundleMessage.BAD_REQUEST, new Object[]{}, locale);
+
+        Optional<String> optionalValue = parseHttpMessageNotReadableExceptionMessage(e.getMessage());
+
+        String message = optionalValue
+                .map(value -> messageSource.getMessage(ResourceBundleMessage.BAD_PARAMETER, new Object[]{value}, locale))
+                .orElseGet(() -> messageSource.getMessage(ResourceBundleMessage.BAD_REQUEST, new Object[]{}, locale));
+
         ExceptionResponse response = new ExceptionResponse(HttpStatus.BAD_REQUEST.value(), message);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    private Optional<String> parseHttpMessageNotReadableExceptionMessage(String message) {
+        if (StringUtils.isBlank(message)) {
+            return Optional.empty();
+        }
+        Matcher matcher = HTTP_MESSAGE_NOT_READABLE_EXCEPTION_VALUE_PATTERN.matcher(message);
+        if (!matcher.find()) {
+            return Optional.empty();
+        }
+        String exceptionValue = matcher.group().replace("\"", "");
+        return Optional.of(exceptionValue);
     }
 
     @ExceptionHandler(SortArgumentException.class)
@@ -77,7 +100,7 @@ public class ControllerExceptionHandler {
         List<String> messages = e.getBindingResult().getFieldErrors()
                 .stream()
                 .map(FieldError::getDefaultMessage)
-                .filter(Objects::nonNull)
+                .filter(Objects::nonNull).distinct()
                 .map(messageKey -> messageSource.getMessage(messageKey, new Object[]{}, locale))
                 .collect(Collectors.toList());
 
@@ -85,20 +108,10 @@ public class ControllerExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-//    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-//    public ResponseEntity<ExceptionResponse> handleMethodArgumentException(MethodArgumentTypeMismatchException e, Locale locale) {
-//        LOGGER.error(e);
-//        String exceptionMessage = e.getCause().getMessage();
-//        Object parameter = exceptionMessage.substring(exceptionMessage.indexOf('[') + 1, exceptionMessage.lastIndexOf(']'));
-//        String message = messageSource.getMessage(ResourceBundleMessage.BAD_PARAMETER, new Object[]{parameter}, locale);
-//        ExceptionResponse response = new ExceptionResponse(HttpStatus.BAD_REQUEST.value(), message);
-//        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-//    }
-
     @ExceptionHandler(TypeMismatchException.class)
     public ResponseEntity<ExceptionResponse> handleTypeMismatchException(TypeMismatchException e, Locale locale) {
         LOGGER.error(e);
-        String message = messageSource.getMessage(ResourceBundleMessage.BAD_REQUEST, new Object[]{}, locale);
+        String message = messageSource.getMessage(ResourceBundleMessage.BAD_PARAMETER, new Object[]{e.getValue()}, locale);
         ExceptionResponse response = new ExceptionResponse(HttpStatus.BAD_REQUEST.value(), message);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }

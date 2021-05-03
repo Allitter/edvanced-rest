@@ -85,10 +85,8 @@ public abstract class AbstractRepository<T extends Model> implements MainReposit
     @Override
     public List<T> queryList(NativeQuery nativeQuery, Pageable pageable) {
         Query query = entityManager.createNativeQuery(nativeQuery.getQuery(), getEntityType());
-
         Map<String, Object> params = nativeQuery.getParams();
         params.keySet().forEach(key -> query.setParameter(key, params.get(key)));
-
         setResultPageIfPaged(pageable, query);
 
         return query.getResultList();
@@ -106,6 +104,7 @@ public abstract class AbstractRepository<T extends Model> implements MainReposit
 
     private List<T> queryEager(Specification<T> specification, Pageable pageable,
                                CriteriaBuilder criteriaBuilder, CriteriaQuery<T> criteriaQuery) {
+
         CriteriaQuery<Long> idQuery = criteriaBuilder.createQuery(Long.class);
         Root<T> root = idQuery.from(getEntityType());
         Predicate predicate = specification.toPredicate(root, idQuery, criteriaBuilder);
@@ -119,7 +118,10 @@ public abstract class AbstractRepository<T extends Model> implements MainReposit
         root = criteriaQuery.from(getEntityType());
 
         fetchConnectedEntities(root);
-        criteriaQuery.select(root).where(root.get("id").in(ids));
+        criteriaQuery.select(root).where(root.get("id").in(ids))
+                .orderBy(criteriaBuilder.asc(root.get("id")))
+                .distinct(true);
+
         return entityManager.createQuery(criteriaQuery).getResultList();
     }
 

@@ -5,12 +5,14 @@ import com.epam.esm.dto.TagDto;
 import com.epam.esm.link.LinkBuilder;
 import com.epam.esm.model.Tag;
 import com.epam.esm.service.TagService;
+import com.epam.esm.validation.ValidationGroup.Create;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -64,7 +66,7 @@ public class TagController {
     public ResponseEntity<TagDto> findMostFrequentTagOfUserWithHighestCostOfAllOrders() {
         Tag tag = tagService.findMostFrequentTagOfUserWithHighestCostOfAllOrders();
         TagDto dto = EntityConverter.map(tag);
-        dto =tagLinkBuilder.buildLinks(dto);
+        dto = tagLinkBuilder.buildLinks(dto);
         return ResponseEntity.ok(dto);
     }
 
@@ -75,7 +77,7 @@ public class TagController {
      * @return the added tag {@link TagDto}
      */
     @PostMapping()
-    public ResponseEntity<TagDto> add(@RequestBody TagDto dto) {
+    public ResponseEntity<TagDto> add(@Validated(Create.class) @RequestBody TagDto dto) {
         Tag tag = EntityConverter.map(dto);
         Tag result = tagService.add(tag);
         dto = EntityConverter.map(result);

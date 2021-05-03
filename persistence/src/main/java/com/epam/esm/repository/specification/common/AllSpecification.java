@@ -12,6 +12,7 @@ public class AllSpecification<T extends Model> implements Specification<T> {
 
     @Override
     public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+        query.distinct(true);
         return criteriaBuilder.conjunction();
     }
 }

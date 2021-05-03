@@ -1,26 +1,31 @@
 package com.epam.esm.dto;
 
+import com.epam.esm.validation.ResourceBundleMessage;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.Objects;
 import java.util.StringJoiner;
 
 @Relation(collectionRelation = "tags")
 public class TagDto extends RepresentationModel<TagDto> {
-    private long id;
+    private Long id;
+    @NotBlank(message = ResourceBundleMessage.TAG_NAME_EMPTY)
+    @Size(min = 2, max = 64, message = ResourceBundleMessage.TAG_NAME_FORMAT)
     private String name;
 
-    public TagDto(long id, String name) {
+    public TagDto(Long id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

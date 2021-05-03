@@ -1,26 +1,37 @@
 package com.epam.esm.dto;
 
-import com.epam.esm.util.ResourceBundleMessage;
+import com.epam.esm.validation.ResourceBundleMessage;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.Valid;
+import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.*;
 
+import static com.epam.esm.validation.ValidationGroup.Create;
+
 @Relation(collectionRelation = "certificates")
 public class CertificateDto extends RepresentationModel<CertificateDto> {
-    private long id;
-    @NotBlank(message = ResourceBundleMessage.CERTIFICATE_NAME_EMPTY)
-    @NotEmpty
+    private Long id;
+    @NotBlank(message = ResourceBundleMessage.CERTIFICATE_NAME_EMPTY, groups = {Create.class})
+    @Size(min = 2, max = 64, message = ResourceBundleMessage.CERTIFICATE_NAME_FORMAT)
     private String name;
+    @NotBlank(message = ResourceBundleMessage.CERTIFICATE_DESCRIPTION_EMPTY, groups = {Create.class})
+    @Size(min = 2, max = 255, message = ResourceBundleMessage.CERTIFICATE_DESCRIPTION_FORMAT)
     private String description;
+    @NotNull(message = ResourceBundleMessage.CERTIFICATE_PRICE_EMPTY, groups = {Create.class})
+    @Min(value = 0, message = ResourceBundleMessage.CERTIFICATE_PRICE_FORMAT)
+    @Max(value = 999999, message = ResourceBundleMessage.CERTIFICATE_PRICE_FORMAT)
     private Integer price;
+    @NotNull(message = ResourceBundleMessage.CERTIFICATE_DURATION_EMPTY, groups = {Create.class})
+    @Min(value = 1, message = ResourceBundleMessage.CERTIFICATE_DURATION_FORMAT)
+    @Max(value = Integer.MAX_VALUE, message = ResourceBundleMessage.CERTIFICATE_DURATION_FORMAT)
     private Integer duration;
     private LocalDate createDate;
     private LocalDate lastUpdateDate;
+    @Valid
     private Set<TagDto> tags;
 
     public CertificateDto() {
@@ -31,7 +42,7 @@ public class CertificateDto extends RepresentationModel<CertificateDto> {
         this.id = id;
     }
 
-    public CertificateDto(long id, String name, String description, Integer price, Integer duration,
+    public CertificateDto(Long id, String name, String description, Integer price, Integer duration,
                           LocalDate createDate, LocalDate lastUpdateDate, List<TagDto> tags) {
         this.id = id;
         this.name = name;
@@ -46,11 +57,11 @@ public class CertificateDto extends RepresentationModel<CertificateDto> {
         }
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -131,7 +142,7 @@ public class CertificateDto extends RepresentationModel<CertificateDto> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CertificateDto that = (CertificateDto) o;
-        return id == that.id
+        return id.equals(that.id)
                 && Objects.equals(name, that.name)
                 && Objects.equals(description, that.description)
                 && Objects.equals(price, that.price)

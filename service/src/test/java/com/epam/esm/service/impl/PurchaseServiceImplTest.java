@@ -4,7 +4,6 @@ import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.model.Purchase;
 import com.epam.esm.repository.MainRepository;
 import com.epam.esm.repository.impl.PurchaseRepository;
-import com.epam.esm.repository.specification.purchase.adapter.PurchaseSpecification;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -43,7 +42,7 @@ class PurchaseServiceImplTest {
 
     @Test
     void testFindByIdShouldThrowExceptionIfNoPurchaseFound() {
-        Mockito.when(purchaseRepository.queryFirst(Mockito.any(PurchaseSpecification.class))).thenReturn(Optional.empty());
+        Mockito.when(purchaseRepository.queryFirst(Mockito.any(Specification.class))).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> purchaseService.findById(1L));
     }
@@ -64,7 +63,7 @@ class PurchaseServiceImplTest {
         Purchase purchase = new Purchase();
         purchase.setPurchaseCertificates(new ArrayList<>());
 
-       purchaseService.add(1L, purchase);
+        purchaseService.add(1L, purchase);
 
         Mockito.verify(purchaseRepository, Mockito.times(1)).add(purchase);
     }

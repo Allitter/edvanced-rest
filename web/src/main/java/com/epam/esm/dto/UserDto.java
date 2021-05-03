@@ -54,6 +54,4 @@ public class UserDto extends RepresentationModel<UserDto> implements Serializabl
     public int hashCode() {
         return Objects.hash(id, login);
     }
-
-
 }
