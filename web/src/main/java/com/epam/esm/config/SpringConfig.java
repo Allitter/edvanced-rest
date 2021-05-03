@@ -9,7 +9,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 
 @Configuration
-@EntityScan(basePackages = "com.epam.esm.model")
+@EntityScan(basePackages = {"com.epam.esm.model", "com.epam.esm.audit"})
 public class SpringConfig implements WebMvcConfigurer {
     private static final String EXCEPTION_MESSAGE_BUNDLE = "exception.message";
     private static final String DEFAULT_ENCODING = "UTF-8";

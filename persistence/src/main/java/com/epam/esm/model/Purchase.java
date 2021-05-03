@@ -1,5 +1,7 @@
 package com.epam.esm.model;
 
+import com.epam.esm.audit.EntityActionListener;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -7,6 +9,7 @@ import java.util.Objects;
 import java.util.StringJoiner;
 
 @Entity
+@EntityListeners(EntityActionListener.class)
 @Table(name = "purchase")
 public class Purchase implements Model {
     private static final int HASH_CODE = 3;

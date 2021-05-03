@@ -1,14 +1,18 @@
 package com.epam.esm.model;
 
+import com.epam.esm.audit.EntityActionListener;
+
 import javax.persistence.*;
 import java.util.Objects;
 import java.util.StringJoiner;
 
 @Entity
+@EntityListeners(EntityActionListener.class)
+@Table(name = "purchase_certificate")
 public class PurchaseCertificate implements Model {
     private static final int HASH_CODE = 14;
     @Id
-    @SequenceGenerator(name = "purchase_certificate_id_seq", sequenceName = "purchase_certificate_id_seq", allocationSize = 5)
+    @SequenceGenerator(name = "purchase_certificate_id_seq", sequenceName = "purchase_certificate_id_seq", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "purchase_certificate_id_seq")
     private Long id;
     @ManyToOne
@@ -62,7 +66,6 @@ public class PurchaseCertificate implements Model {
         return new StringJoiner(", ", PurchaseCertificate.class.getSimpleName() + "[", "]")
                 .add("id=" + id)
                 .add("certificate=" + certificate)
-                .add("purchase=" + purchase)
                 .add("count=" + count)
                 .toString();
     }

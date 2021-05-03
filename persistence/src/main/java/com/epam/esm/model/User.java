@@ -1,10 +1,13 @@
 package com.epam.esm.model;
 
+import com.epam.esm.audit.EntityActionListener;
+
 import javax.persistence.*;
 import java.util.Objects;
 import java.util.StringJoiner;
 
 @Entity
+@EntityListeners(EntityActionListener.class)
 @Table(name = "users")
 public class User implements Model {
     private static final int HASH_CODE = 19;

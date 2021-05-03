@@ -1,5 +1,6 @@
 package com.epam.esm.model;
 
+import com.epam.esm.audit.EntityActionListener;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -9,6 +10,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 @Entity
+@EntityListeners(EntityActionListener.class)
 @Table(name = "certificate")
 public class Certificate implements Model {
     private static final int HASH_CODE = 13;
