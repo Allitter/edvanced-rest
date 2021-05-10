@@ -1,15 +1,26 @@
 package com.epam.esm.model;
 
 import com.epam.esm.audit.EntityActionListener;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Objects;
+import java.util.Set;
 import java.util.StringJoiner;
 
 @Entity
 @EntityListeners(EntityActionListener.class)
 @Table(name = "users")
-public class User implements Model {
+@Data
+@Builder(toBuilder = true)
+@AllArgsConstructor
+@NoArgsConstructor
+public class User implements Model, UserDetails {
     private static final int HASH_CODE = 19;
     @Id
     @SequenceGenerator(name = "user_id_seq", sequenceName = "user_id_seq", allocationSize = 1)
@@ -21,9 +32,15 @@ public class User implements Model {
     private String password;
     @Column(name = "removed", columnDefinition = "boolean default false")
     private boolean removed;
-
-    public User() {
-    }
+    @Column(name = "is_account_non_expired", columnDefinition = "boolean default true")
+    private boolean isAccountNonExpired;
+    @Column(name = "is_account_non_locked", columnDefinition = "boolean default true")
+    private boolean isAccountNonLocked;
+    @Column(name = "is_credentials_non_expired", columnDefinition = "boolean default true")
+    private boolean isCredentialsNonExpired;
+    @Column(name = "is_enabled", columnDefinition = "boolean default true")
+    private boolean isEnabled;
+    private Set<? extends GrantedAuthority> authorities;
 
     public User(Long id, String login) {
         this.id = id;
@@ -31,37 +48,8 @@ public class User implements Model {
     }
 
     @Override
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getLogin() {
+    public String getUsername() {
         return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public boolean isRemoved() {
-        return removed;
-    }
-
-    public void setRemoved(boolean removed) {
-        this.removed = removed;
     }
 
     @Override

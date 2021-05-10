@@ -1,6 +1,10 @@
 package com.epam.esm.model;
 
 import com.epam.esm.audit.EntityActionListener;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -9,6 +13,10 @@ import java.util.StringJoiner;
 @Entity
 @EntityListeners(EntityActionListener.class)
 @Table(name = "purchase_certificate")
+@Data
+@Builder(toBuilder = true)
+@AllArgsConstructor
+@NoArgsConstructor
 public class PurchaseCertificate implements Model {
     private static final int HASH_CODE = 14;
     @Id
@@ -23,43 +31,6 @@ public class PurchaseCertificate implements Model {
     private Purchase purchase;
     @Column(name = "cnt", nullable = false)
     private int count;
-
-    public PurchaseCertificate() {
-    }
-
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Certificate getCertificate() {
-        return certificate;
-    }
-
-    public void setCertificate(Certificate certificate) {
-        this.certificate = certificate;
-    }
-
-    public Purchase getPurchase() {
-        return purchase;
-    }
-
-    public void setPurchase(Purchase purchase) {
-        this.purchase = purchase;
-    }
-
-    public int getCount() {
-        return count;
-    }
-
-    public void setCount(int count) {
-        this.count = count;
-    }
 
     @Override
     public String toString() {

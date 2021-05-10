@@ -1,6 +1,9 @@
 package com.epam.esm.model;
 
 import com.epam.esm.audit.EntityActionListener;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -9,6 +12,9 @@ import java.util.StringJoiner;
 @Entity
 @EntityListeners(EntityActionListener.class)
 @Table(name = "tag")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Tag implements Model {
     private static final int HASH_CODE = 61;
 
@@ -18,35 +24,6 @@ public class Tag implements Model {
     private Long id;
     @Column(name = "name", length = 64, nullable = false, unique = true)
     private String name;
-
-    public Tag() {
-    }
-
-    public Tag(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     @Override
     public String toString() {

@@ -12,6 +12,7 @@ import com.epam.esm.repository.specification.common.ModelNotRemovedSpecification
 import com.epam.esm.repository.specification.tag.TagNameInSpecification;
 import com.epam.esm.service.CertificateQueryObject;
 import com.epam.esm.service.CertificateService;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -27,15 +28,10 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(isolation = Isolation.REPEATABLE_READ)
+@RequiredArgsConstructor
 public class CertificateServiceImpl implements CertificateService {
     private final MainRepository<Tag> tagRepository;
     private final MainRepository<Certificate> repository;
-
-    public CertificateServiceImpl(MainRepository<Certificate> repository,
-                                  MainRepository<Tag> tagRepository) {
-        this.repository = repository;
-        this.tagRepository = tagRepository;
-    }
 
     @Override
     public Certificate findById(long id) {
@@ -51,15 +47,20 @@ public class CertificateServiceImpl implements CertificateService {
         Optional<Certificate> optional = repository.queryFirst(specification);
         Certificate oldCertificate = optional.orElseThrow(EntityNotFoundException::new);
 
-        Certificate certificateToUpdate = Certificate.Builder.merge(oldCertificate, certificate);
+        Certificate certificateToUpdate = merge(oldCertificate, certificate);
         List<Tag> ensuredTags = ensureTagsInRepo(certificateToUpdate.getTags());
 
-        certificateToUpdate = new Certificate.Builder(certificateToUpdate)
-                .setLastUpdateDate(LocalDate.now())
-                .setTags(ensuredTags)
+        certificateToUpdate = certificateToUpdate.toBuilder()
+                .lastUpdateDate(LocalDate.now())
+                .tags(ensuredTags)
                 .build();
 
         return repository.update(certificateToUpdate);
+    }
+
+    private Certificate merge(Certificate to, Certificate from) {
+        // todo implement
+        return new Certificate();
     }
 
     @Override
@@ -68,10 +69,10 @@ public class CertificateServiceImpl implements CertificateService {
                 ? ensureTagsInRepo(certificate.getTags())
                 : Collections.emptyList();
 
-        certificate = new Certificate.Builder(certificate)
-                .setCreateDate(LocalDate.now())
-                .setLastUpdateDate(LocalDate.now())
-                .setTags(tags)
+        certificate = certificate.toBuilder()
+                .createDate(LocalDate.now())
+                .lastUpdateDate(LocalDate.now())
+                .tags(tags)
                 .build();
 
         return repository.add(certificate);

@@ -7,6 +7,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class EntityConverter {
@@ -15,31 +16,33 @@ public final class EntityConverter {
     }
 
     public static CertificateDto map(Certificate certificate) {
-        List<TagDto> tagDtos = certificate.getTags().stream()
+        Set<TagDto> tagDtos = certificate.getTags().stream()
                 .map(EntityConverter::map)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
-        return new CertificateDto(
-                certificate.getId(),
-                certificate.getName(),
-                certificate.getDescription(),
-                certificate.getPrice(),
-                certificate.getDuration(),
-                certificate.getCreateDate(),
-                certificate.getLastUpdateDate(),
-                tagDtos);
+        return CertificateDto.builder()
+                .id(certificate.getId())
+                .name(certificate.getName())
+                .description(certificate.getDescription())
+                .price(certificate.getPrice())
+                .duration(certificate.getDuration())
+                .createDate(certificate.getCreateDate())
+                .lastUpdateDate(certificate.getLastUpdateDate())
+                .tags(tagDtos)
+                .build();
     }
 
     public static CertificateDto mapCertificateNoTags(Certificate certificate) {
-        return new CertificateDto(
-                certificate.getId(),
-                certificate.getName(),
-                certificate.getDescription(),
-                certificate.getPrice(),
-                certificate.getDuration(),
-                certificate.getCreateDate(),
-                certificate.getLastUpdateDate(),
-                Collections.emptyList());
+        return CertificateDto.builder()
+                .id(certificate.getId())
+                .name(certificate.getName())
+                .description(certificate.getDescription())
+                .price(certificate.getPrice())
+                .duration(certificate.getDuration())
+                .createDate(certificate.getCreateDate())
+                .lastUpdateDate(certificate.getLastUpdateDate())
+                .tags(Collections.emptySet())
+                .build();
     }
 
     public static Certificate map(CertificateDto dto) {
@@ -47,15 +50,15 @@ public final class EntityConverter {
                 .map(EntityConverter::map)
                 .collect(Collectors.toList());
 
-        return new Certificate.Builder()
-                .setId(dto.getId())
-                .setName(dto.getName())
-                .setDescription(dto.getDescription())
-                .setPrice(dto.getPrice())
-                .setDuration(dto.getDuration())
-                .setCreateDate(dto.getCreateDate())
-                .setLastUpdateDate(dto.getLastUpdateDate())
-                .setTags(tags)
+        return Certificate.builder()
+                .id(dto.getId())
+                .name(dto.getName())
+                .description(dto.getDescription())
+                .price(dto.getPrice())
+                .duration(dto.getDuration())
+                .createDate(dto.getCreateDate())
+                .lastUpdateDate(dto.getLastUpdateDate())
+                .tags(tags)
                 .build();
     }
 
@@ -68,12 +71,13 @@ public final class EntityConverter {
     }
 
     public static PurchaseDto mapPurchaseNoCertificates(Purchase purchase) {
-        return new PurchaseDto(
-                purchase.getId(),
-                purchase.getUser().getId(),
-                purchase.getCost(),
-                new ArrayList<>(),
-                purchase.getCreateTime());
+        return PurchaseDto.builder()
+                .id(purchase.getId())
+                .idUser(purchase.getUser().getId())
+                .cost(purchase.getCost())
+                .certificates(Collections.emptyList())
+                .createTime(purchase.getCreateTime())
+                .build();
     }
 
     public static PurchaseDto map(Purchase purchase) {
@@ -82,12 +86,13 @@ public final class EntityConverter {
                 .map(EntityConverter::map)
                 .collect(Collectors.toList());
 
-        return new PurchaseDto(
-                purchase.getId(),
-                purchase.getUser().getId(),
-                purchase.getCost(),
-                certificates,
-                purchase.getCreateTime());
+        return PurchaseDto.builder()
+                .id(purchase.getId())
+                .idUser(purchase.getUser().getId())
+                .cost(purchase.getCost())
+                .certificates(certificates)
+                .createTime(purchase.getCreateTime())
+                .build();
     }
 
     public static Purchase map(PurchaseDto purchaseDto) {
@@ -99,41 +104,44 @@ public final class EntityConverter {
                     .collect(Collectors.toList());
         }
 
-        return new Purchase(purchaseDto.getId(), purchaseDto.getCost(), purchaseDto.getCreateTime(), purchaseCertificates);
+        return Purchase.builder()
+                .id(purchaseDto.getId())
+                .createTime(purchaseDto.getCreateTime())
+                .purchaseCertificates(purchaseCertificates)
+                .build();
     }
 
     public static PurchasesCertificateDto map(PurchaseCertificate purchaseCertificate) {
-        PurchasesCertificateDto purchasesCertificateDto = new PurchasesCertificateDto();
-        purchasesCertificateDto.setCount(purchaseCertificate.getCount());
         Certificate certificate = purchaseCertificate.getCertificate();
-        purchasesCertificateDto.setId(certificate.getId());
-        purchasesCertificateDto.setCreateDate(certificate.getCreateDate());
-        purchasesCertificateDto.setLastUpdateDate(certificate.getLastUpdateDate());
-        purchasesCertificateDto.setName(certificate.getName());
-        purchasesCertificateDto.setDescription(certificate.getDescription());
-        purchasesCertificateDto.setDuration(certificate.getDuration());
-        purchasesCertificateDto.setPrice(certificate.getPrice());
-
         List<TagDto> tagDtos = certificate.getTags().stream()
                 .map(EntityConverter::map)
                 .collect(Collectors.toList());
-        purchasesCertificateDto.setTags(tagDtos);
 
-        return purchasesCertificateDto;
+        return PurchasesCertificateDto.builder()
+                .count(purchaseCertificate.getCount())
+                .id(certificate.getId())
+                .createDate(certificate.getCreateDate())
+                .lastUpdateDate(certificate.getLastUpdateDate())
+                .name(certificate.getName())
+                .description(certificate.getDescription())
+                .duration(certificate.getDuration())
+                .price(certificate.getPrice())
+                .tags(tagDtos)
+                .build();
     }
 
     public static PurchaseCertificate map(PurchasesCertificateDto dto) {
-        PurchaseCertificate purchaseCertificate = new PurchaseCertificate();
-        purchaseCertificate.setCount(dto.getCount());
-        Certificate certificate =new Certificate.Builder()
-                .setId(dto.getId())
+        Certificate certificate = Certificate.builder()
+                .id(dto.getId())
                 .build();
-        purchaseCertificate.setCertificate(certificate);
-        return purchaseCertificate;
+        return PurchaseCertificate.builder()
+                .certificate(certificate)
+                .count(dto.getCount())
+                .build();
     }
 
     public static UserDto map(User user) {
-        return new UserDto(user.getId(),user.getLogin());
+        return new UserDto(user.getId(), user.getLogin());
     }
 
     public static User map(UserDto userDto) {

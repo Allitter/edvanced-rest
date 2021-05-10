@@ -1,17 +1,26 @@
 package com.epam.esm.model;
 
 import com.epam.esm.audit.EntityActionListener;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.StringJoiner;
 
 @Entity
 @EntityListeners(EntityActionListener.class)
 @Table(name = "certificate")
+@Data
+@Builder(toBuilder = true)
+@AllArgsConstructor
+@NoArgsConstructor
 public class Certificate implements Model {
     private static final int HASH_CODE = 13;
 
@@ -33,108 +42,17 @@ public class Certificate implements Model {
     @Column(name = "last_update_date", nullable = false)
     private LocalDate lastUpdateDate;
 
-    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JoinTable(
             name = "certificate_tag",
             joinColumns = {@JoinColumn(name = "id_certificate")},
             inverseJoinColumns = {@JoinColumn(name = "id_tag")}
     )
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    private List<Tag> tags;
+    @Builder.Default
+    private List<Tag> tags = new ArrayList<>();
     @Column(name = "removed", columnDefinition = "boolean default false")
     private boolean removed;
-
-    public Certificate() {
-        this.tags = new ArrayList<>();
-    }
-
-    private Certificate(Builder builder) {
-        this.id = builder.id;
-        this.name = builder.name;
-        this.description = builder.description;
-        this.price = builder.price;
-        this.duration = builder.duration;
-        this.createDate = builder.createDate;
-        this.lastUpdateDate = builder.lastUpdateDate;
-        this.tags = Collections.unmodifiableList(builder.tags);
-        this.removed = builder.removed;
-    }
-
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Integer getPrice() {
-        return price;
-    }
-
-    public void setPrice(Integer price) {
-        this.price = price;
-    }
-
-    public Integer getDuration() {
-        return duration;
-    }
-
-    public void setDuration(Integer duration) {
-        this.duration = duration;
-    }
-
-    public LocalDate getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(LocalDate createDate) {
-        this.createDate = createDate;
-    }
-
-    public LocalDate getLastUpdateDate() {
-        return lastUpdateDate;
-    }
-
-    public void setLastUpdateDate(LocalDate lastUpdateDate) {
-        this.lastUpdateDate = lastUpdateDate;
-    }
-
-    public List<Tag> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<Tag> tags) {
-        if (CollectionUtils.isNotEmpty(tags)) {
-            this.tags = tags;
-        }
-    }
-
-    public boolean isRemoved() {
-        return removed;
-    }
-
-    public void setRemoved(boolean removed) {
-        this.removed = removed;
-    }
 
     @Override
     public String toString() {
@@ -161,105 +79,5 @@ public class Certificate implements Model {
     @Override
     public int hashCode() {
         return HASH_CODE;
-    }
-
-    public static class Builder {
-        private static final int ZERO = 0;
-        private Long id;
-        private String name;
-        private String description;
-        private Integer price;
-        private Integer duration;
-        private LocalDate createDate;
-        private LocalDate lastUpdateDate;
-        private List<Tag> tags;
-        private boolean removed = false;
-
-        public Builder() {
-            this.tags = new ArrayList<>();
-        }
-
-        public Builder(Certificate certificate) {
-            this.id = certificate.getId();
-            this.name = certificate.getName();
-            this.description = certificate.getDescription();
-            this.price = certificate.getPrice();
-            this.duration = certificate.getDuration();
-            this.createDate = certificate.getCreateDate();
-            this.lastUpdateDate = certificate.getLastUpdateDate();
-            this.tags = certificate.getTags();
-        }
-
-        public static Certificate merge(Certificate to, Certificate from) {
-            Builder builder = new Builder(to);
-            if (StringUtils.isNotBlank(from.name)) {
-                builder.setName(from.name);
-            }
-            if (StringUtils.isNotBlank(from.description)) {
-                builder.setDescription(from.description);
-            }
-            if (Objects.nonNull(from.price)) {
-                builder.setPrice(from.price);
-            }
-            if (Objects.nonNull(from.duration) && from.duration != ZERO) {
-                builder.setDuration(from.duration);
-            }
-            if (CollectionUtils.isNotEmpty(from.tags)) {
-                builder.setTags(from.tags);
-            }
-
-            return builder.build();
-        }
-
-        public Builder setId(Long id) {
-            this.id = id;
-            return this;
-        }
-
-        public Builder setName(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public Builder setDescription(String description) {
-            this.description = description;
-            return this;
-        }
-
-        public Builder setPrice(Integer price) {
-            this.price = price;
-            return this;
-        }
-
-        public Builder setDuration(Integer duration) {
-            this.duration = duration;
-            return this;
-        }
-
-        public Builder setCreateDate(LocalDate createDate) {
-            this.createDate = createDate;
-            return this;
-        }
-
-        public Builder setLastUpdateDate(LocalDate lastUpdateDate) {
-            this.lastUpdateDate = lastUpdateDate;
-            return this;
-        }
-
-        public Builder setTags(List<Tag> tags) {
-            if (tags != null) {
-                this.tags = tags;
-            }
-            return this;
-        }
-
-        public Builder setRemoved(boolean removed) {
-            this.removed = removed;
-            return this;
-        }
-
-        public Certificate build() {
-            return new Certificate(this);
-        }
     }
 }
