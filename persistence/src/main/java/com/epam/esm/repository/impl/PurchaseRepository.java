@@ -25,9 +25,7 @@ public class PurchaseRepository extends AbstractRepository<Purchase> {
 
     @Override
     protected void fetchConnectedEntities(Root<Purchase> root) {
-        root.fetch("purchaseCertificates", JoinType.LEFT)
-                .fetch("certificate", JoinType.LEFT)
-                .fetch("tags", JoinType.LEFT);
+        root.fetch("purchaseCertificates", JoinType.LEFT);
     }
 
     @Override

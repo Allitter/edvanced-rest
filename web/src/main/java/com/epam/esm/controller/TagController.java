@@ -12,6 +12,7 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,6 +43,7 @@ public class TagController {
      * @return the list of all tags
      */
     @GetMapping()
+    @PreAuthorize("hasAuthority('tag:read')")
     public ResponseEntity<PagedModel<TagDto>> findAll(Pageable pageable) {
         Page<Tag> tags = tagService.findAll(pageable);
         PagedModel<TagDto> dtos = pagedResourcesAssembler.toModel(tags, tagAssembler);
@@ -55,6 +57,7 @@ public class TagController {
      * @return the tag with queried id {@link TagDto}
      */
     @GetMapping(value = "/{id}")
+    @PreAuthorize("hasAuthority('tag:read')")
     public ResponseEntity<TagDto> findById(@PathVariable long id) {
         Tag tag = tagService.findById(id);
         TagDto dto = EntityConverter.map(tag);
@@ -63,6 +66,7 @@ public class TagController {
     }
 
     @GetMapping(value = "/top-user/popular-tag")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<TagDto> findMostFrequentTagOfUserWithHighestCostOfAllOrders() {
         Tag tag = tagService.findMostFrequentTagOfUserWithHighestCostOfAllOrders();
         TagDto dto = EntityConverter.map(tag);
@@ -77,6 +81,7 @@ public class TagController {
      * @return the added tag {@link TagDto}
      */
     @PostMapping()
+    @PreAuthorize("hasAuthority('tag:create')")
     public ResponseEntity<TagDto> add(@Validated(Create.class) @RequestBody TagDto dto) {
         Tag tag = EntityConverter.map(dto);
         Tag result = tagService.add(tag);
@@ -92,6 +97,7 @@ public class TagController {
      * @return no content
      */
     @DeleteMapping(value = "/{id}")
+    @PreAuthorize("hasAuthority('tag:delete')")
     public ResponseEntity<TagDto> remove(@PathVariable long id) {
         Tag tag = tagService.remove(id);
         TagDto dto = EntityConverter.map(tag);

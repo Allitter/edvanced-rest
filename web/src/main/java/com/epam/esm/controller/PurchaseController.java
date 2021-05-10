@@ -9,12 +9,11 @@ import com.epam.esm.model.Purchase;
 import com.epam.esm.service.PurchaseService;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/purchases")
@@ -29,6 +28,7 @@ public class PurchaseController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('purchase:read')")
     public ResponseEntity<PurchaseDto> findById(@PathVariable Long id) {
         Purchase purchase = purchaseService.findById(id);
         PurchaseDto dto = EntityConverter.mapPurchaseNoCertificates(purchase);
@@ -37,6 +37,7 @@ public class PurchaseController {
     }
 
     @GetMapping("/{idPurchase}/certificates")
+    @PreAuthorize("hasAuthority('purchase:read')")
     public ResponseEntity<CollectionModel<PurchasesCertificateDto>> findPurchaseCertificates(@PathVariable Long idPurchase) {
         Purchase purchase = purchaseService.findById(idPurchase);
         PurchaseDto dto = EntityConverter.map(purchase);
@@ -46,6 +47,7 @@ public class PurchaseController {
     }
 
     @GetMapping("/{idPurchase}/certificates/{idCertificate}")
+    @PreAuthorize("hasAuthority('purchase:read')")
     public ResponseEntity<PurchasesCertificateDto> findPurchaseCertificate(@PathVariable Long idPurchase, @PathVariable Long idCertificate) {
         Purchase purchase = purchaseService.findById(idPurchase);
         PurchaseDto dto = EntityConverter.map(purchase);
@@ -54,7 +56,7 @@ public class PurchaseController {
         PurchasesCertificateDto certificateDto
                 = dto.getCertificates()
                 .stream()
-                .filter(certificate -> certificate.getId() == idCertificate)
+                .filter(certificate -> certificate.getId().equals(idCertificate))
                 .findFirst()
                 .orElseThrow(EntityNotFoundException::new);
 

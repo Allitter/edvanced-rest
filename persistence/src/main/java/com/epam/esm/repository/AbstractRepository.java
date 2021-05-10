@@ -73,7 +73,8 @@ public abstract class AbstractRepository<T extends Model> implements MainReposit
     @Override
     public Page<T> query(Specification<T> specification, Pageable pageable, boolean eager) {
         List<T> items = queryList(specification, pageable, eager);
-        return new PageImpl<>(items, pageable, count(specification));
+        long count = count(specification);
+        return new PageImpl<>(items, pageable, count);
     }
 
     @Override
@@ -118,10 +119,8 @@ public abstract class AbstractRepository<T extends Model> implements MainReposit
         root = criteriaQuery.from(getEntityType());
 
         fetchConnectedEntities(root);
-        criteriaQuery.select(root).where(root.get("id").in(ids))
-                .orderBy(criteriaBuilder.asc(root.get("id")))
-                .distinct(true);
-
+        criteriaQuery.select(root).where(root.get("id").in(ids)).distinct(true);
+        trySort(pageable, criteriaBuilder, criteriaQuery, root);
         return entityManager.createQuery(criteriaQuery).getResultList();
     }
 
@@ -142,7 +141,11 @@ public abstract class AbstractRepository<T extends Model> implements MainReposit
     private void trySort(Pageable pageable, CriteriaBuilder criteriaBuilder,
                          CriteriaQuery<?> criteriaQuery, Root<?> root) {
         try {
-            criteriaQuery.orderBy(QueryUtils.toOrders(pageable.getSort(), root, criteriaBuilder));
+            if (pageable.getSort().isUnsorted()) {
+                criteriaQuery.orderBy(criteriaBuilder.asc(root.get("id")));
+            } else {
+                criteriaQuery.orderBy(QueryUtils.toOrders(pageable.getSort(), root, criteriaBuilder));
+            }
         } catch (PropertyReferenceException e) {
             throw new SortArgumentException(e.getPropertyName());
         }
@@ -163,7 +166,7 @@ public abstract class AbstractRepository<T extends Model> implements MainReposit
         Root<T> root = countQuery.from(getEntityType());
 
         countQuery.select(criteriaBuilder.count(root));
-        countQuery.where(specification.toPredicate(root, criteriaQuery, criteriaBuilder));
+        countQuery.where(specification.toPredicate(root, criteriaQuery, criteriaBuilder)).distinct(true);
 
         return entityManager
                 .createQuery(countQuery)

@@ -17,6 +17,7 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,6 +51,7 @@ public class UserController {
     }
 
     @GetMapping()
+    @PreAuthorize("hasAuthority('user:read')")
     public ResponseEntity<PagedModel<UserDto>> findAll(Pageable pageable) {
         Page<User> users = userService.findAll(pageable);
         PagedModel<UserDto> dtos = pagedUserResourcesAssembler.toModel(users, userAssembler);
@@ -57,6 +59,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('user:read')")
     public ResponseEntity<UserDto> findById(@PathVariable Long id) {
         User user = userService.findById(id);
         UserDto dto = EntityConverter.map(user);
@@ -65,6 +68,7 @@ public class UserController {
     }
 
     @PostMapping("/{id}/purchases")
+    @PreAuthorize("hasAuthority('purchase:create')")
     public ResponseEntity<PurchaseDto> addPurchase(@PathVariable Long id,
                                                    @Validated(Create.class) @RequestBody PurchaseDto purchaseDto) {
         Purchase purchase = EntityConverter.map(purchaseDto);
@@ -75,6 +79,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/{id}/purchases")
+    @PreAuthorize("hasAuthority('user:read')")
     public ResponseEntity<PagedModel<PurchaseDto>> findUserPurchases(@PathVariable Long id, Pageable pageable) {
         Page<Purchase> orders = purchaseService.findByUserId(id, pageable, false);
         PagedModel<PurchaseDto> dtos = pagePurchasedResourcesAssembler.toModel(orders, purchaseModelAssembler);

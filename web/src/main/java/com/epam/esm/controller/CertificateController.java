@@ -19,6 +19,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,6 +60,7 @@ public class CertificateController {
      * @return the list of queried certificates or all certificates if no params passed
      */
     @GetMapping()
+    @PreAuthorize("hasAuthority('certificate:read')")
     public ResponseEntity<PagedModel<CertificateDto>> findByQuery(CertificateQueryObject query,
                                                                   Pageable pageable,
                                                                   @RequestParam(defaultValue = "true") boolean fetchTags) {
@@ -75,6 +77,7 @@ public class CertificateController {
      * @return the {@link CertificateDto} of queried certificate
      */
     @GetMapping(value = "/{id}")
+    @PreAuthorize("hasAuthority('certificate:read')")
     public ResponseEntity<CertificateDto> findById(@PathVariable long id) {
         Certificate certificate = certificateService.findById(id);
         CertificateDto dto = EntityConverter.map(certificate);
@@ -83,6 +86,7 @@ public class CertificateController {
     }
 
     @GetMapping(value = "/{id}/tags")
+    @PreAuthorize("hasAuthority('certificate:read')")
     public ResponseEntity<CollectionModel<TagDto>> findCertificateTags(@PathVariable long id) {
         Certificate certificate = certificateService.findById(id);
         List<Tag> tags = certificate.getTags();
@@ -101,6 +105,7 @@ public class CertificateController {
      * @return the {@link CertificateDto} of added certificate
      */
     @PostMapping()
+    @PreAuthorize("hasAuthority('certificate:create')")
     public ResponseEntity<CertificateDto> add(@Validated(Create.class) @RequestBody CertificateDto dto) {
         Certificate certificate = EntityConverter.map(dto);
         Certificate result = certificateService.add(certificate);
@@ -117,6 +122,7 @@ public class CertificateController {
      * @return the updated certificate {@link CertificateDto}
      */
     @PutMapping(value = "/{id}")
+    @PreAuthorize("hasAuthority('certificate:update')")
     public ResponseEntity<CertificateDto> update(@PathVariable long id,
                                                  @Validated(Update.class) @RequestBody CertificateDto dto) {
         dto.setId(id);
@@ -134,6 +140,7 @@ public class CertificateController {
      * @return no content
      */
     @DeleteMapping(value = "/{id}")
+    @PreAuthorize("hasAuthority('certificate:delete')")
     public ResponseEntity<CertificateDto> remove(@PathVariable long id) {
         Certificate certificate = certificateService.remove(id);
         CertificateDto dto = EntityConverter.map(certificate);
