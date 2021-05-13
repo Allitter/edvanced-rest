@@ -6,6 +6,7 @@ import com.epam.esm.link.LinkBuilder;
 import com.epam.esm.model.Tag;
 import com.epam.esm.service.TagService;
 import com.epam.esm.validation.ValidationGroup.Create;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -20,22 +21,13 @@ import org.springframework.web.bind.annotation.*;
  * Tag CRD controller.
  */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/tags")
 public class TagController {
     private final TagService tagService;
     private final LinkBuilder<TagDto> tagLinkBuilder;
     private final PagedResourcesAssembler<Tag> pagedResourcesAssembler;
     private final RepresentationModelAssemblerSupport<Tag, TagDto> tagAssembler;
-
-    public TagController(TagService tagService,
-                         LinkBuilder<TagDto> tagLinkBuilder,
-                         PagedResourcesAssembler<Tag> pagedResourcesAssembler,
-                         RepresentationModelAssemblerSupport<Tag, TagDto> tagAssembler) {
-        this.tagService = tagService;
-        this.tagLinkBuilder = tagLinkBuilder;
-        this.pagedResourcesAssembler = pagedResourcesAssembler;
-        this.tagAssembler = tagAssembler;
-    }
 
     /**
      * Fids all tags.

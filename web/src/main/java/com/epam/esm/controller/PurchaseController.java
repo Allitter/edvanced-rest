@@ -7,6 +7,7 @@ import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.link.LinkBuilder;
 import com.epam.esm.model.Purchase;
 import com.epam.esm.service.PurchaseService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,16 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/purchases")
 public class PurchaseController {
     private final PurchaseService purchaseService;
     private final LinkBuilder<PurchaseDto> orderLinkBuilder;
-
-    public PurchaseController(PurchaseService purchaseService,
-                              LinkBuilder<PurchaseDto> orderLinkBuilder) {
-        this.purchaseService = purchaseService;
-        this.orderLinkBuilder = orderLinkBuilder;
-    }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('purchase:read')")

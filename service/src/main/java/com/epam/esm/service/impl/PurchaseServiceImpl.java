@@ -11,6 +11,7 @@ import com.epam.esm.repository.specification.purchase.PurchaseByUserIdSpecificat
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.PurchaseService;
 import com.epam.esm.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -25,19 +26,12 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 @Transactional(isolation = Isolation.REPEATABLE_READ)
 public class PurchaseServiceImpl implements PurchaseService {
     private final UserService userService;
     private final CertificateService certificateService;
     private final MainRepository<Purchase> purchaseRepository;
-
-    public PurchaseServiceImpl(UserService userService,
-                               CertificateService certificateService,
-                               MainRepository<Purchase> purchaseRepository) {
-        this.userService = userService;
-        this.certificateService = certificateService;
-        this.purchaseRepository = purchaseRepository;
-    }
 
     @Override
     public Purchase findById(Long id) {

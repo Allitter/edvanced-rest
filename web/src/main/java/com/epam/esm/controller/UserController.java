@@ -8,8 +8,8 @@ import com.epam.esm.model.Purchase;
 import com.epam.esm.model.User;
 import com.epam.esm.service.PurchaseService;
 import com.epam.esm.service.UserService;
-import com.epam.esm.validation.ValidationGroup;
 import com.epam.esm.validation.ValidationGroup.Create;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -22,6 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
@@ -32,23 +33,6 @@ public class UserController {
     private final PagedResourcesAssembler<Purchase> pagePurchasedResourcesAssembler;
     private final RepresentationModelAssembler<Purchase, PurchaseDto> purchaseModelAssembler;
     private final RepresentationModelAssemblerSupport<User, UserDto> userAssembler;
-
-    public UserController(UserService userService, PurchaseService purchaseService,
-                          LinkBuilder<UserDto> userLinkBuilder,
-                          LinkBuilder<PurchaseDto> purchaseLinkBuilder,
-                          PagedResourcesAssembler<User> pagedUserResourcesAssembler,
-                          PagedResourcesAssembler<Purchase> pagePurchasedResourcesAssembler,
-                          RepresentationModelAssembler<Purchase, PurchaseDto> purchaseModelAssembler,
-                          RepresentationModelAssemblerSupport<User, UserDto> userAssembler) {
-        this.userService = userService;
-        this.purchaseService = purchaseService;
-        this.userLinkBuilder = userLinkBuilder;
-        this.purchaseLinkBuilder = purchaseLinkBuilder;
-        this.pagedUserResourcesAssembler = pagedUserResourcesAssembler;
-        this.pagePurchasedResourcesAssembler = pagePurchasedResourcesAssembler;
-        this.purchaseModelAssembler = purchaseModelAssembler;
-        this.userAssembler = userAssembler;
-    }
 
     @GetMapping()
     @PreAuthorize("hasAuthority('user:read')")

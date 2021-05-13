@@ -3,6 +3,7 @@ package com.epam.esm.repository;
 import com.epam.esm.exception.SortArgumentException;
 import com.epam.esm.model.Model;
 import com.epam.esm.repository.query.NativeQuery;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -17,13 +18,10 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.*;
 
+@RequiredArgsConstructor
 public abstract class AbstractRepository<T extends Model> implements MainRepository<T> {
     @PersistenceContext(type = PersistenceContextType.TRANSACTION)
     protected final EntityManager entityManager;
-
-    protected AbstractRepository(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
 
     protected abstract Class<T> getEntityType();
 

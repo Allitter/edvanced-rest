@@ -12,6 +12,7 @@ import com.epam.esm.service.CertificateQueryObject;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.validation.ValidationGroup.Create;
 import com.epam.esm.validation.ValidationGroup.Update;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
  * The controller to provide CRUD operations on {@link Certificate}.
  */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(value = "/certificates")
 public class CertificateController {
     private final CertificateService certificateService;
@@ -38,20 +40,6 @@ public class CertificateController {
     private final PagedResourcesAssembler<Certificate> pagedResourcesAssembler;
     private final CertificateRepresentationalModelAssembler certificateAssembler;
     private final CertificateNoTagsRepresentationalModelAssembler certificateNoTagsAssembler;
-
-    public CertificateController(CertificateService certificateService,
-                                 LinkBuilder<CertificateDto> linkBuilder,
-                                 LinkBuilder<TagDto> tagLinkBuilder,
-                                 PagedResourcesAssembler<Certificate> pagedResourcesAssembler,
-                                 CertificateRepresentationalModelAssembler certificateAssembler,
-                                 CertificateNoTagsRepresentationalModelAssembler certificateNoTagsAssembler) {
-        this.certificateService = certificateService;
-        this.certificateLinkBuilder = linkBuilder;
-        this.tagLinkBuilder = tagLinkBuilder;
-        this.pagedResourcesAssembler = pagedResourcesAssembler;
-        this.certificateAssembler = certificateAssembler;
-        this.certificateNoTagsAssembler = certificateNoTagsAssembler;
-    }
 
     /**
      * Search for certificates by passed params.

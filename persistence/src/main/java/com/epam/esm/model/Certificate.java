@@ -12,15 +12,15 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.StringJoiner;
 
-@Entity
-@EntityListeners(EntityActionListener.class)
-@Table(name = "certificate")
+
 @Data
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
+@Table(name = "certificate")
+@EntityListeners(EntityActionListener.class)
 public class Certificate implements Model {
     private static final int HASH_CODE = 13;
 
@@ -48,25 +48,10 @@ public class Certificate implements Model {
             joinColumns = {@JoinColumn(name = "id_certificate")},
             inverseJoinColumns = {@JoinColumn(name = "id_tag")}
     )
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @Builder.Default
     private List<Tag> tags = new ArrayList<>();
     @Column(name = "removed", columnDefinition = "boolean default false")
     private boolean removed;
-
-    @Override
-    public String toString() {
-        return new StringJoiner(", ", Certificate.class.getSimpleName() + "[", "]")
-                .add("id=" + id)
-                .add("name='" + name + "'")
-                .add("description='" + description + "'")
-                .add("price=" + price)
-                .add("duration=" + duration)
-                .add("createDate=" + createDate)
-                .add("lastUpdateDate=" + lastUpdateDate)
-                .add("tags=" + tags)
-                .toString();
-    }
 
     @Override
     public boolean equals(Object o) {

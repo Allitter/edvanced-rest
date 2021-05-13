@@ -16,9 +16,12 @@ public final class EntityConverter {
     }
 
     public static CertificateDto map(Certificate certificate) {
-        Set<TagDto> tagDtos = certificate.getTags().stream()
-                .map(EntityConverter::map)
-                .collect(Collectors.toSet());
+        Set<TagDto> tagDtos = null;
+        if (CollectionUtils.isNotEmpty(certificate.getTags())) {
+            tagDtos = certificate.getTags().stream()
+                    .map(EntityConverter::map)
+                    .collect(Collectors.toSet());
+        }
 
         return CertificateDto.builder()
                 .id(certificate.getId())
@@ -46,9 +49,12 @@ public final class EntityConverter {
     }
 
     public static Certificate map(CertificateDto dto) {
-        List<Tag> tags = dto.getTags().stream()
-                .map(EntityConverter::map)
-                .collect(Collectors.toList());
+        List<Tag> tags = null;
+        if (CollectionUtils.isNotEmpty(dto.getTags())) {
+            tags = dto.getTags().stream()
+                    .map(EntityConverter::map)
+                    .collect(Collectors.toList());
+        }
 
         return Certificate.builder()
                 .id(dto.getId())

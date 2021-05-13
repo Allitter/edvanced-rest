@@ -4,9 +4,9 @@ import javax.validation.groups.Default;
 
 public class ValidationGroup {
 
-    public static interface Update extends Default {
+    public interface Update extends Default {
     }
 
-    public static interface Create extends Default {
+    public interface Create extends Default {
     }
 }

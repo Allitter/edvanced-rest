@@ -11,15 +11,15 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.StringJoiner;
 
-@Entity
-@EntityListeners(EntityActionListener.class)
-@Table(name = "purchase")
+
 @Data
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
+@Table(name = "purchase")
+@EntityListeners(EntityActionListener.class)
 public class Purchase implements Model {
     private static final int HASH_CODE = 3;
 
@@ -39,25 +39,6 @@ public class Purchase implements Model {
     private List<PurchaseCertificate> purchaseCertificates = new ArrayList<>();
     @Column(name = "removed", columnDefinition = "boolean default false")
     private boolean removed;
-
-    public Purchase(Long id, Integer cost, LocalDateTime createTime, List<PurchaseCertificate> purchaseCertificates) {
-        this.id = id;
-        this.cost = cost;
-        this.createTime = createTime;
-        this.purchaseCertificates = purchaseCertificates;
-    }
-
-    @Override
-    public String toString() {
-        return new StringJoiner(", ", Purchase.class.getSimpleName() + "[", "]")
-                .add("id=" + id)
-                .add("cost=" + cost)
-                .add("createTime=" + createTime)
-                .add("user=" + user)
-                .add("purchaseCertificates=" + purchaseCertificates)
-                .add("removed=" + removed)
-                .toString();
-    }
 
     @Override
     public boolean equals(Object o) {

@@ -59,8 +59,23 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     private Certificate merge(Certificate to, Certificate from) {
-        // todo implement
-        return new Certificate();
+        if (StringUtils.isNotBlank(from.getName())) {
+            to.setName(from.getName());
+        }
+        if (StringUtils.isNotBlank(from.getDescription())) {
+            to.setDescription(from.getDescription());
+        }
+        if (from.getDuration() != null) {
+            to.setDuration(from.getDuration());
+        }
+        if (from.getPrice() != null) {
+            to.setPrice(from.getPrice());
+        }
+        if (from.getTags() != null) {
+            to.setTags(from.getTags());
+        }
+
+        return to;
     }
 
     @Override

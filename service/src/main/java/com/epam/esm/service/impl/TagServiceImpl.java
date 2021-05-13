@@ -9,6 +9,7 @@ import com.epam.esm.repository.specification.common.AllSpecification;
 import com.epam.esm.repository.specification.common.ModelByIdSpecification;
 import com.epam.esm.repository.specification.tag.TagByNameSpecification;
 import com.epam.esm.service.TagService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,13 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 @Transactional(isolation = Isolation.REPEATABLE_READ)
 public class TagServiceImpl implements TagService {
     private final MainRepository<Tag> tagRepository;
-
-    public TagServiceImpl(MainRepository<Tag> tagRepository) {
-        this.tagRepository = tagRepository;
-    }
 
     @Override
     public Tag findById(long id) {

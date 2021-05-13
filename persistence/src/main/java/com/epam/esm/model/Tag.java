@@ -7,14 +7,13 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Objects;
-import java.util.StringJoiner;
 
-@Entity
-@EntityListeners(EntityActionListener.class)
-@Table(name = "tag")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name = "tag")
+@EntityListeners(EntityActionListener.class)
 public class Tag implements Model {
     private static final int HASH_CODE = 61;
 
@@ -24,14 +23,6 @@ public class Tag implements Model {
     private Long id;
     @Column(name = "name", length = 64, nullable = false, unique = true)
     private String name;
-
-    @Override
-    public String toString() {
-        return new StringJoiner(", ", Tag.class.getSimpleName() + "[", "]")
-                .add("id=" + id)
-                .add("name='" + name + "'")
-                .toString();
-    }
 
     @Override
     public boolean equals(Object o) {

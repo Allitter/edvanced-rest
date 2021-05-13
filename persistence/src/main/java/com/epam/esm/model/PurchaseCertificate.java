@@ -10,13 +10,13 @@ import javax.persistence.*;
 import java.util.Objects;
 import java.util.StringJoiner;
 
-@Entity
-@EntityListeners(EntityActionListener.class)
-@Table(name = "purchase_certificate")
 @Data
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
+@Table(name = "purchase_certificate")
+@EntityListeners(EntityActionListener.class)
 public class PurchaseCertificate implements Model {
     private static final int HASH_CODE = 14;
     @Id

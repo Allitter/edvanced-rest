@@ -8,24 +8,21 @@ import com.epam.esm.repository.specification.common.ModelByIdSpecification;
 import com.epam.esm.repository.specification.common.ModelNotRemovedSpecification;
 import com.epam.esm.repository.specification.user.UserByLoginSpecification;
 import com.epam.esm.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 @Transactional(isolation = Isolation.REPEATABLE_READ)
-public class UserServiceImpl implements UserService, UserDetailsService {
+public class UserServiceImpl implements UserService {
     private final MainRepository<User> userRepository;
-
-    public UserServiceImpl(MainRepository<User> userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @Override
     public User findById(Long id) {
