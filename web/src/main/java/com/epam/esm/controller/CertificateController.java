@@ -48,7 +48,6 @@ public class CertificateController {
      * @return the list of queried certificates or all certificates if no params passed
      */
     @GetMapping()
-    @PreAuthorize("hasAuthority('certificate:read')")
     public ResponseEntity<PagedModel<CertificateDto>> findByQuery(CertificateQueryObject query,
                                                                   Pageable pageable,
                                                                   @RequestParam(defaultValue = "true") boolean fetchTags) {
@@ -65,7 +64,6 @@ public class CertificateController {
      * @return the {@link CertificateDto} of queried certificate
      */
     @GetMapping(value = "/{id}")
-    @PreAuthorize("hasAuthority('certificate:read')")
     public ResponseEntity<CertificateDto> findById(@PathVariable long id) {
         Certificate certificate = certificateService.findById(id);
         CertificateDto dto = EntityConverter.map(certificate);
@@ -74,7 +72,6 @@ public class CertificateController {
     }
 
     @GetMapping(value = "/{id}/tags")
-    @PreAuthorize("hasAuthority('certificate:read')")
     public ResponseEntity<CollectionModel<TagDto>> findCertificateTags(@PathVariable long id) {
         Certificate certificate = certificateService.findById(id);
         List<Tag> tags = certificate.getTags();

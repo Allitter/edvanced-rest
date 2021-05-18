@@ -21,6 +21,8 @@ public final class ResourceBundleMessage {
     public static final String CERTIFICATE_PURCHASE_COUNT_EMPTY = "certificate.purchase.count.empty";
     public static final String CERTIFICATE_PURCHASE_COUNT_FORMAT = "certificate.purchase.count.format";
     public static final String CERTIFICATE_PURCHASE_ID_EMPTY = "certificate.purchase.id.empty";
+    public static final String USER_ALREADY_EXISTS = "user.already.exists";
+    public static final String USER_LOGIN_FORMAT = "user.login.format";
 
     private ResourceBundleMessage() {
     }

@@ -125,6 +125,14 @@ public class ControllerExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ExceptionResponse> handleUserAlreadyExistsException(UserAlreadyExistsException e, Locale locale) {
+        LOGGER.error(e);
+        String message = messageSource.getMessage(ResourceBundleMessage.USER_ALREADY_EXISTS, new Object[]{}, locale);
+        ExceptionResponse response = new ExceptionResponse(HttpStatus.BAD_REQUEST.value(), message);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ExceptionResponse> handleException(RuntimeException e, Locale locale) {
         LOGGER.error(e);

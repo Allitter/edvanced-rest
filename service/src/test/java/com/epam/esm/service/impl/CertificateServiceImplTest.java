@@ -4,8 +4,6 @@ import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.model.Certificate;
 import com.epam.esm.model.Tag;
 import com.epam.esm.repository.MainRepository;
-import com.epam.esm.repository.specification.common.ModelByIdSpecification;
-import com.epam.esm.repository.specification.tag.TagByNameSpecification;
 import com.epam.esm.service.CertificateQueryObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -70,7 +68,7 @@ class CertificateServiceImplTest {
     @Test
     void testAddShouldAddCertificateToRepository() {
         Mockito.when(certificateRepository.add(CERTIFICATE)).thenReturn(CERTIFICATE);
-        Mockito.when(tagRepository.queryFirst(Mockito.isA(TagByNameSpecification.class))).thenReturn(Optional.empty());
+        Mockito.when(tagRepository.queryFirst(Mockito.isA(Specification.class))).thenReturn(Optional.empty());
         doAnswer(AdditionalAnswers.returnsFirstArg()).when(tagRepository).add(any());
 
         Certificate actual = service.add(CERTIFICATE);
@@ -87,8 +85,8 @@ class CertificateServiceImplTest {
                 .build();
 
         Mockito.when(certificateRepository.update(certificate)).thenReturn(certificate);
-        Mockito.when(certificateRepository.queryFirst(isA(ModelByIdSpecification.class))).thenReturn(Optional.of(CERTIFICATE));
-        Mockito.when(tagRepository.queryFirst(Mockito.isA(TagByNameSpecification.class))).thenReturn(Optional.empty());
+        Mockito.when(certificateRepository.queryFirst(isA(Specification.class))).thenReturn(Optional.of(CERTIFICATE));
+        Mockito.when(tagRepository.queryFirst(Mockito.isA(Specification.class))).thenReturn(Optional.empty());
         doAnswer(AdditionalAnswers.returnsFirstArg()).when(tagRepository).add(any());
 
         Certificate actual = service.update(certificate);

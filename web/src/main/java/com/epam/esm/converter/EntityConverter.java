@@ -72,6 +72,14 @@ public final class EntityConverter {
         return new Tag(dto.getId(), dto.getName());
     }
 
+    public static User map(SignupRequest dto) {
+        return User.builder()
+                .login(dto.getLogin())
+                .password(dto.getPassword())
+                .build();
+    }
+
+
     public static TagDto map(Tag tag) {
         return new TagDto(tag.getId(), tag.getName());
     }

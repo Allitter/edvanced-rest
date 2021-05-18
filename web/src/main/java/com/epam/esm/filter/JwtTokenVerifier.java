@@ -1,6 +1,7 @@
 package com.epam.esm.filter;
 
 import com.epam.esm.config.JwtConfig;
+import com.epam.esm.exception.UntrustedTokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
@@ -62,7 +63,7 @@ public class JwtTokenVerifier extends OncePerRequestFilter implements Filter {
 
             filterChain.doFilter(request, response);
         } catch (JwtException e) {
-            throw new IllegalStateException(String.format("Token %s cannot be trusted", token));
+            throw new UntrustedTokenException(String.format("Token %s cannot be trusted", token));
         }
     }
 }

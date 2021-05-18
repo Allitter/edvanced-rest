@@ -42,7 +42,7 @@ public class Certificate implements Model {
     @Column(name = "last_update_date", nullable = false)
     private LocalDate lastUpdateDate;
 
-    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     @JoinTable(
             name = "certificate_tag",
             joinColumns = {@JoinColumn(name = "id_certificate")},

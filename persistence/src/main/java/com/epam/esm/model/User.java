@@ -29,14 +29,18 @@ public class User implements Model, UserDetails {
     private String login;
     @Column(name = "password", length = 64, nullable = false)
     private String password;
+    @Builder.Default
     @Column(name = "is_account_non_expired", columnDefinition = "boolean default true")
-    private boolean isAccountNonExpired;
+    private boolean isAccountNonExpired = true;
+    @Builder.Default
     @Column(name = "is_account_non_locked", columnDefinition = "boolean default true")
-    private boolean isAccountNonLocked;
+    private boolean isAccountNonLocked = true;
+    @Builder.Default
     @Column(name = "is_credentials_non_expired", columnDefinition = "boolean default true")
-    private boolean isCredentialsNonExpired;
+    private boolean isCredentialsNonExpired = true;
+    @Builder.Default
     @Column(name = "is_enabled", columnDefinition = "boolean default true")
-    private boolean isEnabled;
+    private boolean isEnabled = true;
     @Enumerated(EnumType.STRING)
     @Column(name = "role", columnDefinition = "varchar(32) default 'USER'")
     private UserRole role;

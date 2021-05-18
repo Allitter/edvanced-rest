@@ -2,14 +2,15 @@ package com.epam.esm.repository.impl;
 
 import com.epam.esm.model.Certificate;
 import com.epam.esm.repository.AbstractRepository;
-import com.epam.esm.repository.specification.common.ModelByIdSpecification;
-import com.epam.esm.repository.specification.common.ModelNotRemovedSpecification;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 import java.util.Optional;
+
+import static com.epam.esm.repository.specification.CommonSpecifications.*;
 
 @Repository
 public class CertificateRepository extends AbstractRepository<Certificate> {
@@ -31,9 +32,8 @@ public class CertificateRepository extends AbstractRepository<Certificate> {
 
     @Override
     public Optional<Certificate> remove(long id) {
-        Optional<Certificate> certificateOptional = queryFirst(
-                new ModelByIdSpecification<Certificate>(id).and(new ModelNotRemovedSpecification<>()));
-
+        Specification<Certificate> specification = typed(byId(id), Certificate.class).and(notRemoved());
+        Optional<Certificate> certificateOptional = queryFirst(specification);
         certificateOptional.ifPresent(certificate -> certificate.setRemoved(true));
         return certificateOptional;
     }

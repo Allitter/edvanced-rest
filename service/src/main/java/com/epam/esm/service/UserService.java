@@ -11,4 +11,5 @@ public interface UserService extends UserDetailsService {
 
     Page<User> findAll(Pageable pageable);
 
+    User create(User user);
 }

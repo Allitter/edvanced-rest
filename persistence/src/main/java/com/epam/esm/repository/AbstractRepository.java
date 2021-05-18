@@ -101,6 +101,11 @@ public abstract class AbstractRepository<T extends Model> implements MainReposit
                 : queryLazy(specification, pageable, criteriaBuilder, criteriaQuery);
     }
 
+    @Override
+    public boolean exists(Specification<T> specification) {
+        return count(specification) > 0;
+    }
+
     private List<T> queryEager(Specification<T> specification, Pageable pageable,
                                CriteriaBuilder criteriaBuilder, CriteriaQuery<T> criteriaQuery) {
 

@@ -4,11 +4,6 @@ import com.epam.esm.config.TestConfig;
 import com.epam.esm.model.Certificate;
 import com.epam.esm.model.Tag;
 import com.epam.esm.repository.impl.CertificateRepository;
-import com.epam.esm.repository.specification.certificate.CertificateByDescriptionSpecification;
-import com.epam.esm.repository.specification.certificate.CertificateByNameSpecification;
-import com.epam.esm.repository.specification.certificate.CertificateByTagNameSpecification;
-import com.epam.esm.repository.specification.common.AllSpecification;
-import com.epam.esm.repository.specification.common.ModelByIdSpecification;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -25,6 +20,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import static com.epam.esm.repository.specification.CertificateSpecifications.byDescription;
+import static com.epam.esm.repository.specification.CertificateSpecifications.byTagName;
+import static com.epam.esm.repository.specification.CommonSpecifications.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -104,12 +102,11 @@ class CertificateRepositoryTest {
 
     public static Object[][] queries() {
         return new Object[][]{
-                {new AllSpecification<>(), CERTIFICATES},
-                {new CertificateByNameSpecification("first"), List.of(CERTIFICATES.get(FIRST_ELEMENT))},
-                {new CertificateByDescriptionSpecification("fourth"), List.of(CERTIFICATES.get(FOURTH_ELEMENT))},
-                {new CertificateByTagNameSpecification("second"),
-                        List.of(CERTIFICATES.get(SECOND_ELEMENT), CERTIFICATES.get(THIRD_ELEMENT))},
-                {new ModelByIdSpecification<Certificate>(FIRST_ELEMENT_ID), List.of(CERTIFICATES.get(FIRST_ELEMENT))},
+                {all(), CERTIFICATES},
+                {byName("first"), List.of(CERTIFICATES.get(FIRST_ELEMENT))},
+                {byDescription("fourth"), List.of(CERTIFICATES.get(FOURTH_ELEMENT))},
+                {byTagName("second"), List.of(CERTIFICATES.get(SECOND_ELEMENT), CERTIFICATES.get(THIRD_ELEMENT))},
+                {byId(FIRST_ELEMENT_ID), List.of(CERTIFICATES.get(FIRST_ELEMENT))},
         };
     }
 
@@ -170,7 +167,7 @@ class CertificateRepositoryTest {
     @Rollback
     void testQuerySingleShouldReturnFirstResultForSpecification() {
         Certificate expected = CERTIFICATES.get(FIRST_ELEMENT);
-        Specification<Certificate> specification = new ModelByIdSpecification<>(FIRST_ELEMENT_ID);
+        Specification<Certificate> specification = byId(FIRST_ELEMENT_ID);
 
         Certificate actual = certificateRepository.queryFirst(specification).get();
 

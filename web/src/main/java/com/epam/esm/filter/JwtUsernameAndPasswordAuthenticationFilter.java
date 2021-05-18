@@ -2,6 +2,7 @@ package com.epam.esm.filter;
 
 import com.epam.esm.config.JwtConfig;
 import com.epam.esm.dto.UsernameAndPasswordAuthenticationRequest;
+import com.epam.esm.exception.ControllerException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,7 @@ public class JwtUsernameAndPasswordAuthenticationFilter extends UsernamePassword
 
             return authenticationManager.authenticate(authentication);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ControllerException(e.getMessage(), e);
         }
     }
 
