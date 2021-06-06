@@ -35,7 +35,7 @@ public class UserController {
     private final RepresentationModelAssemblerSupport<User, UserDto> userAssembler;
 
     @GetMapping()
-    @PreAuthorize("hasAuthority('user:read')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PagedModel<UserDto>> findAll(Pageable pageable) {
         Page<User> users = userService.findAll(pageable);
         PagedModel<UserDto> dtos = pagedUserResourcesAssembler.toModel(users, userAssembler);
@@ -43,7 +43,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('user:read')")
+    @PreAuthorize("hasRole('ADMIN') || @userSecurity.hasSameId(authentication, #id)")
     public ResponseEntity<UserDto> findById(@PathVariable Long id) {
         User user = userService.findById(id);
         UserDto dto = EntityConverter.map(user);
@@ -51,8 +51,16 @@ public class UserController {
         return ResponseEntity.ok(dto);
     }
 
+    @GetMapping(value = "/{id}/purchases")
+    @PreAuthorize("hasRole('ADMIN') || @userSecurity.hasSameId(authentication, #id)")
+    public ResponseEntity<PagedModel<PurchaseDto>> findUserPurchases(@PathVariable Long id, Pageable pageable) {
+        Page<Purchase> orders = purchaseService.findByUserId(id, pageable, false);
+        PagedModel<PurchaseDto> dtos = pagePurchasedResourcesAssembler.toModel(orders, purchaseModelAssembler);
+        return ResponseEntity.ok(dtos);
+    }
+
     @PostMapping("/{id}/purchases")
-    @PreAuthorize("hasAuthority('purchase:create')")
+    @PreAuthorize("@userSecurity.hasSameId(authentication, #id)")
     public ResponseEntity<PurchaseDto> addPurchase(@PathVariable Long id,
                                                    @Validated(Create.class) @RequestBody PurchaseDto purchaseDto) {
         Purchase purchase = EntityConverter.map(purchaseDto);
@@ -60,13 +68,5 @@ public class UserController {
         PurchaseDto dto = EntityConverter.map(purchase);
         dto = purchaseLinkBuilder.buildLinks(dto);
         return ResponseEntity.ok(dto);
-    }
-
-    @GetMapping(value = "/{id}/purchases")
-    @PreAuthorize("hasAuthority('user:read')")
-    public ResponseEntity<PagedModel<PurchaseDto>> findUserPurchases(@PathVariable Long id, Pageable pageable) {
-        Page<Purchase> orders = purchaseService.findByUserId(id, pageable, false);
-        PagedModel<PurchaseDto> dtos = pagePurchasedResourcesAssembler.toModel(orders, purchaseModelAssembler);
-        return ResponseEntity.ok(dtos);
     }
 }

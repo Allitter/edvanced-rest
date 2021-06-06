@@ -9,7 +9,11 @@ public interface UserService extends UserDetailsService {
 
     User findById(Long idUser);
 
+    User findByLogin(String login);
+
     Page<User> findAll(Pageable pageable);
 
     User create(User user);
+
+    boolean userExists(String login);
 }

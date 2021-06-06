@@ -9,12 +9,6 @@ import java.util.stream.Collectors;
 import static com.epam.esm.model.UserPermission.*;
 
 public enum UserRole {
-    GUEST(EnumSet.of(
-            CERTIFICATE_READ,
-            TAG_READ,
-            SIGNIN,
-            SIGNUP
-    )),
     USER(EnumSet.of(
             CERTIFICATE_READ,
             TAG_READ,

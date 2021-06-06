@@ -27,7 +27,9 @@ public class User implements Model, UserDetails {
     private Long id;
     @Column(name = "login", length = 64, unique = true, nullable = false)
     private String login;
-    @Column(name = "password", length = 64, nullable = false)
+    @Column(name = "name", length = 64)
+    private String name;
+    @Column(name = "password", length = 64)
     private String password;
     @Builder.Default
     @Column(name = "is_account_non_expired", columnDefinition = "boolean default true")
@@ -46,6 +48,9 @@ public class User implements Model, UserDetails {
     private UserRole role;
     @Column(name = "removed", columnDefinition = "boolean default false")
     private boolean removed;
+    @Builder.Default
+    @Column(name = "authentication_provider", nullable = false)
+    private String authenticationProvider = "local";
 
     public User(Long id, String login) {
         this.id = id;

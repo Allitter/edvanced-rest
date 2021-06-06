@@ -45,25 +45,29 @@ public class JwtTokenVerifier extends OncePerRequestFilter implements Filter {
         String token = StringUtils.removeStart(authorizationHeader, jwtConfig.getTokenPrefix());
 
         try {
-            Jws<Claims> claimsJws = Jwts.parserBuilder()
-                    .setSigningKey(secretKey).build()
-                    .parseClaimsJws(token);
-
-            Claims body = claimsJws.getBody();
-            String username = body.getSubject();
-            List<Map<String, String>> authorities = (List<Map<String, String>>) body.get("authorities");
-
-            Set<SimpleGrantedAuthority> grantedAuthorities = authorities.stream()
-                    .map(map -> map.get("authority"))
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toSet());
-
-            Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, grantedAuthorities);
+            Authentication authentication = parsenToAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             filterChain.doFilter(request, response);
         } catch (JwtException e) {
             throw new UntrustedTokenException(String.format("Token %s cannot be trusted", token));
         }
+    }
+
+    private Authentication parsenToAuthentication(String token) {
+        Jws<Claims> claimsJws = Jwts.parserBuilder()
+                .setSigningKey(secretKey).build()
+                .parseClaimsJws(token);
+
+        Claims body = claimsJws.getBody();
+        String username = body.getSubject();
+        List<Map<String, String>> authorities = (List<Map<String, String>>) body.get("authorities");
+
+        Set<SimpleGrantedAuthority> grantedAuthorities = authorities.stream()
+                .map(map -> map.get("authority"))
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toSet());
+
+        return new UsernamePasswordAuthenticationToken(username, null, grantedAuthorities);
     }
 }

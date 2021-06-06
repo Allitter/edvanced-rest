@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -36,15 +35,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findByLogin(String login) {
+        return userRepository
+                .queryFirst(byLogin(login))
+                .orElseThrow(EntityNotFoundException::new);
+    }
+
+    @Override
     public Page<User> findAll(Pageable pageable) {
         return userRepository.query(all(), pageable);
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository
-                .queryFirst(byLogin(username))
-                .orElseThrow(EntityNotFoundException::new);
+    public User loadUserByUsername(String username) throws UsernameNotFoundException {
+        return findByLogin(username);
     }
 
     @Override
@@ -61,5 +65,10 @@ public class UserServiceImpl implements UserService {
         String encodedPassword = passwordEncoder.encode(password);
         user.setPassword(encodedPassword);
         return userRepository.add(user);
+    }
+
+    @Override
+    public boolean userExists(String login) {
+        return userRepository.exists(byLogin(login));
     }
 }

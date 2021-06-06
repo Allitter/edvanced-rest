@@ -48,6 +48,7 @@ public class CertificateController {
      * @return the list of queried certificates or all certificates if no params passed
      */
     @GetMapping()
+    @PreAuthorize("true")
     public ResponseEntity<PagedModel<CertificateDto>> findByQuery(CertificateQueryObject query,
                                                                   Pageable pageable,
                                                                   @RequestParam(defaultValue = "true") boolean fetchTags) {
