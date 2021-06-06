@@ -67,6 +67,8 @@ public interface MainRepository<T extends Model> {
 
     Optional<T> queryFirst(NativeQuery nativeQuery);
 
+    boolean exists(Specification<T> specification);
+
     default Page<T> query(Specification<T> specification, Pageable pageable) {
         return query(specification, pageable, true);
     }

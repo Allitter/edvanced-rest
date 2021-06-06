@@ -12,6 +12,7 @@ import com.epam.esm.service.CertificateQueryObject;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.validation.ValidationGroup.Create;
 import com.epam.esm.validation.ValidationGroup.Update;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -19,6 +20,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
  * The controller to provide CRUD operations on {@link Certificate}.
  */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(value = "/certificates")
 public class CertificateController {
     private final CertificateService certificateService;
@@ -38,20 +41,6 @@ public class CertificateController {
     private final CertificateRepresentationalModelAssembler certificateAssembler;
     private final CertificateNoTagsRepresentationalModelAssembler certificateNoTagsAssembler;
 
-    public CertificateController(CertificateService certificateService,
-                                 LinkBuilder<CertificateDto> linkBuilder,
-                                 LinkBuilder<TagDto> tagLinkBuilder,
-                                 PagedResourcesAssembler<Certificate> pagedResourcesAssembler,
-                                 CertificateRepresentationalModelAssembler certificateAssembler,
-                                 CertificateNoTagsRepresentationalModelAssembler certificateNoTagsAssembler) {
-        this.certificateService = certificateService;
-        this.certificateLinkBuilder = linkBuilder;
-        this.tagLinkBuilder = tagLinkBuilder;
-        this.pagedResourcesAssembler = pagedResourcesAssembler;
-        this.certificateAssembler = certificateAssembler;
-        this.certificateNoTagsAssembler = certificateNoTagsAssembler;
-    }
-
     /**
      * Search for certificates by passed params.
      *
@@ -59,6 +48,7 @@ public class CertificateController {
      * @return the list of queried certificates or all certificates if no params passed
      */
     @GetMapping()
+    @PreAuthorize("true")
     public ResponseEntity<PagedModel<CertificateDto>> findByQuery(CertificateQueryObject query,
                                                                   Pageable pageable,
                                                                   @RequestParam(defaultValue = "true") boolean fetchTags) {
@@ -101,6 +91,7 @@ public class CertificateController {
      * @return the {@link CertificateDto} of added certificate
      */
     @PostMapping()
+    @PreAuthorize("hasAuthority('certificate:create')")
     public ResponseEntity<CertificateDto> add(@Validated(Create.class) @RequestBody CertificateDto dto) {
         Certificate certificate = EntityConverter.map(dto);
         Certificate result = certificateService.add(certificate);
@@ -117,6 +108,7 @@ public class CertificateController {
      * @return the updated certificate {@link CertificateDto}
      */
     @PutMapping(value = "/{id}")
+    @PreAuthorize("hasAuthority('certificate:update')")
     public ResponseEntity<CertificateDto> update(@PathVariable long id,
                                                  @Validated(Update.class) @RequestBody CertificateDto dto) {
         dto.setId(id);
@@ -134,6 +126,7 @@ public class CertificateController {
      * @return no content
      */
     @DeleteMapping(value = "/{id}")
+    @PreAuthorize("hasAuthority('certificate:delete')")
     public ResponseEntity<CertificateDto> remove(@PathVariable long id) {
         Certificate certificate = certificateService.remove(id);
         CertificateDto dto = EntityConverter.map(certificate);

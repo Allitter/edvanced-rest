@@ -9,6 +9,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -112,6 +113,22 @@ public class ControllerExceptionHandler {
     public ResponseEntity<ExceptionResponse> handleTypeMismatchException(TypeMismatchException e, Locale locale) {
         LOGGER.error(e);
         String message = messageSource.getMessage(ResourceBundleMessage.BAD_PARAMETER, new Object[]{e.getValue()}, locale);
+        ExceptionResponse response = new ExceptionResponse(HttpStatus.BAD_REQUEST.value(), message);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ExceptionResponse> handleTypeMismatchException(AccessDeniedException e, Locale locale) {
+        LOGGER.error(e);
+        String message = messageSource.getMessage(ResourceBundleMessage.ACCESS_DENIED, new Object[]{}, locale);
+        ExceptionResponse response = new ExceptionResponse(HttpStatus.FORBIDDEN.value(), message);
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ExceptionResponse> handleUserAlreadyExistsException(UserAlreadyExistsException e, Locale locale) {
+        LOGGER.error(e);
+        String message = messageSource.getMessage(ResourceBundleMessage.USER_ALREADY_EXISTS, new Object[]{}, locale);
         ExceptionResponse response = new ExceptionResponse(HttpStatus.BAD_REQUEST.value(), message);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }

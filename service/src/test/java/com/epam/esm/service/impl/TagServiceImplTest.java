@@ -5,7 +5,6 @@ import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.model.Tag;
 import com.epam.esm.repository.MainRepository;
 import com.epam.esm.repository.impl.TagRepository;
-import com.epam.esm.repository.specification.tag.TagByNameSpecification;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.data.domain.Page;
@@ -78,7 +77,7 @@ class TagServiceImplTest {
 
     @Test
     void testAddShouldThrowExceptionIfNameIsUsed() {
-        Mockito.when(repository.queryFirst(Mockito.isA(TagByNameSpecification.class))).thenReturn(Optional.of(FIRST_TAG));
+        Mockito.when(repository.queryFirst(Mockito.isA(Specification.class))).thenReturn(Optional.of(FIRST_TAG));
         TagServiceImpl service = new TagServiceImpl(repository);
 
         assertThrows(EntityAlreadyExistsException.class, () -> service.add(FIRST_TAG));

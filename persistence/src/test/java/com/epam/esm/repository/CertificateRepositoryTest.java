@@ -4,11 +4,6 @@ import com.epam.esm.config.TestConfig;
 import com.epam.esm.model.Certificate;
 import com.epam.esm.model.Tag;
 import com.epam.esm.repository.impl.CertificateRepository;
-import com.epam.esm.repository.specification.certificate.CertificateByDescriptionSpecification;
-import com.epam.esm.repository.specification.certificate.CertificateByNameSpecification;
-import com.epam.esm.repository.specification.certificate.CertificateByTagNameSpecification;
-import com.epam.esm.repository.specification.common.AllSpecification;
-import com.epam.esm.repository.specification.common.ModelByIdSpecification;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -25,6 +20,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import static com.epam.esm.repository.specification.CertificateSpecifications.byDescription;
+import static com.epam.esm.repository.specification.CertificateSpecifications.byTagName;
+import static com.epam.esm.repository.specification.CommonSpecifications.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -49,46 +47,46 @@ class CertificateRepositoryTest {
             new Tag(4L, "fourth tag")
     );
     private static final List<Certificate> CERTIFICATES = List.of(
-            new Certificate.Builder()
-                    .setId(FIRST_ELEMENT_ID)
-                    .setName("first certificate")
-                    .setDescription("detailed description for first certificate")
-                    .setPrice(200).setDuration(365)
-                    .setCreateDate(LocalDate.of(2021, 1, 21))
-                    .setLastUpdateDate(LocalDate.of(2021, 2, 21))
-                    .setTags(List.of(
+            Certificate.builder()
+                    .id(FIRST_ELEMENT_ID)
+                    .name("first certificate")
+                    .description("detailed description for first certificate")
+                    .price(200).duration(365)
+                    .createDate(LocalDate.of(2021, 1, 21))
+                    .lastUpdateDate(LocalDate.of(2021, 2, 21))
+                    .tags(List.of(
                             TAGS.get(FIRST_TAG_INDEX),
                             TAGS.get(THIRD_TAG_INDEX),
                             TAGS.get(FOURTH_TAG_INDEX)))
                     .build(),
 
-            new Certificate.Builder()
-                    .setId(2L).setName("second certificate")
-                    .setDescription("detailed description for second certificate")
-                    .setPrice(150).setDuration(365)
-                    .setCreateDate(LocalDate.of(2021, 2, 21))
-                    .setLastUpdateDate(LocalDate.of(2021, 3, 21))
-                    .setTags(List.of(TAGS.get(SECOND_TAG_INDEX)))
+            Certificate.builder()
+                    .id(2L).name("second certificate")
+                    .description("detailed description for second certificate")
+                    .price(150).duration(365)
+                    .createDate(LocalDate.of(2021, 2, 21))
+                    .lastUpdateDate(LocalDate.of(2021, 3, 21))
+                    .tags(List.of(TAGS.get(SECOND_TAG_INDEX)))
                     .build(),
 
-            new Certificate.Builder()
-                    .setId(3L).setName("third certificate")
-                    .setDescription("detailed description for third certificate")
-                    .setPrice(80).setDuration(365)
-                    .setCreateDate(LocalDate.of(2021, 1, 21))
-                    .setLastUpdateDate(LocalDate.of(2021, 2, 21))
-                    .setTags(List.of(
+            Certificate.builder()
+                    .id(3L).name("third certificate")
+                    .description("detailed description for third certificate")
+                    .price(80).duration(365)
+                    .createDate(LocalDate.of(2021, 1, 21))
+                    .lastUpdateDate(LocalDate.of(2021, 2, 21))
+                    .tags(List.of(
                             TAGS.get(SECOND_TAG_INDEX),
                             TAGS.get(THIRD_TAG_INDEX)))
                     .build(),
 
-            new Certificate.Builder()
-                    .setId(4L).setName("fourth certificate")
-                    .setDescription("detailed description for fourth certificate")
-                    .setPrice(200).setDuration(730)
-                    .setCreateDate(LocalDate.of(2020, 12, 21))
-                    .setLastUpdateDate(LocalDate.of(2020, 12, 31))
-                    .setTags(List.of(
+            Certificate.builder()
+                    .id(4L).name("fourth certificate")
+                    .description("detailed description for fourth certificate")
+                    .price(200).duration(730)
+                    .createDate(LocalDate.of(2020, 12, 21))
+                    .lastUpdateDate(LocalDate.of(2020, 12, 31))
+                    .tags(List.of(
                             TAGS.get(FIRST_TAG_INDEX),
                             TAGS.get(THIRD_TAG_INDEX)))
                     .build()
@@ -104,24 +102,23 @@ class CertificateRepositoryTest {
 
     public static Object[][] queries() {
         return new Object[][]{
-                {new AllSpecification<>(), CERTIFICATES},
-                {new CertificateByNameSpecification("first"), List.of(CERTIFICATES.get(FIRST_ELEMENT))},
-                {new CertificateByDescriptionSpecification("fourth"), List.of(CERTIFICATES.get(FOURTH_ELEMENT))},
-                {new CertificateByTagNameSpecification("second"),
-                        List.of(CERTIFICATES.get(SECOND_ELEMENT), CERTIFICATES.get(THIRD_ELEMENT))},
-                {new ModelByIdSpecification<Certificate>(FIRST_ELEMENT_ID), List.of(CERTIFICATES.get(FIRST_ELEMENT))},
+                {all(), CERTIFICATES},
+                {byName("first"), List.of(CERTIFICATES.get(FIRST_ELEMENT))},
+                {byDescription("fourth"), List.of(CERTIFICATES.get(FOURTH_ELEMENT))},
+                {byTagName("second"), List.of(CERTIFICATES.get(SECOND_ELEMENT), CERTIFICATES.get(THIRD_ELEMENT))},
+                {byId(FIRST_ELEMENT_ID), List.of(CERTIFICATES.get(FIRST_ELEMENT))},
         };
     }
 
     @Test
     @Rollback
     void testAddShouldAddCertificateToDataSourceIfCertificateNotYetCreated() {
-        Certificate expected = new Certificate.Builder()
-                .setId(null).setName("fifth certificate")
-                .setDescription("detailed description for fifth certificate")
-                .setPrice(200).setDuration(730)
-                .setCreateDate(LocalDate.of(2020, 12, 21))
-                .setLastUpdateDate(LocalDate.of(2020, 12, 31)).build();
+        Certificate expected = Certificate.builder()
+                .id(null).name("fifth certificate")
+                .description("detailed description for fifth certificate")
+                .price(200).duration(730)
+                .createDate(LocalDate.of(2020, 12, 21))
+                .lastUpdateDate(LocalDate.of(2020, 12, 31)).build();
 
         Certificate actual = certificateRepository.add(expected);
 
@@ -133,9 +130,9 @@ class CertificateRepositoryTest {
     void testUpdateShouldUpdateCertificateTIfCertificateIsAlreadyExist() {
         Certificate expected = CERTIFICATES.get(FIRST_ELEMENT);
         String newDescription = "new description";
-        expected = new Certificate.Builder(expected)
-                .setDescription(newDescription).build();
-
+        expected = expected.toBuilder()
+                .description(newDescription)
+                .build();
         Certificate actual = certificateRepository.update(expected);
 
         assertEquals(expected, actual);
@@ -170,7 +167,7 @@ class CertificateRepositoryTest {
     @Rollback
     void testQuerySingleShouldReturnFirstResultForSpecification() {
         Certificate expected = CERTIFICATES.get(FIRST_ELEMENT);
-        Specification<Certificate> specification = new ModelByIdSpecification<>(FIRST_ELEMENT_ID);
+        Specification<Certificate> specification = byId(FIRST_ELEMENT_ID);
 
         Certificate actual = certificateRepository.queryFirst(specification).get();
 

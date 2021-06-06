@@ -4,8 +4,6 @@ import com.epam.esm.exception.EntityNotFoundException;
 import com.epam.esm.model.Certificate;
 import com.epam.esm.model.Tag;
 import com.epam.esm.repository.MainRepository;
-import com.epam.esm.repository.specification.common.ModelByIdSpecification;
-import com.epam.esm.repository.specification.tag.TagByNameSpecification;
 import com.epam.esm.service.CertificateQueryObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -34,29 +32,28 @@ class CertificateServiceImplTest {
     private static final Tag FIRST_TAG = new Tag(1L, "tag");
     private static final Tag SECOND_TAG = new Tag(2L, "another tag");
     private static final Set<Tag> TAGS = Set.of(FIRST_TAG, SECOND_TAG);
-    private static final Certificate CERTIFICATE = new Certificate.Builder()
-            .setId(ID)
-            .setName(NAME)
-            .setDescription(DESCRIPTION)
-            .setPrice(PRICE)
-            .setDuration(DURATION)
-            .setCreateDate(CREATE_DATE)
-            .setLastUpdateDate(LAST_UPDATE_DATE)
-            .setTags(new ArrayList<>(TAGS))
+    private static final Certificate CERTIFICATE = Certificate.builder()
+            .id(ID)
+            .name(NAME)
+            .description(DESCRIPTION)
+            .price(PRICE)
+            .duration(DURATION)
+            .createDate(CREATE_DATE)
+            .lastUpdateDate(LAST_UPDATE_DATE)
+            .tags(new ArrayList<>(TAGS))
             .build();
 
-    private static final Certificate SECOND_CERTIFICATE = new Certificate.Builder()
-            .setId(2L)
-            .setName("second name")
-            .setDescription("second description")
-            .setCreateDate(LocalDate.now().minusDays(1))
-            .setTags(List.of(FIRST_TAG))
+    private static final Certificate SECOND_CERTIFICATE = Certificate.builder()
+            .id(2L)
+            .name("second name")
+            .description("second description")
+            .createDate(LocalDate.now().minusDays(1))
+            .tags(List.of(FIRST_TAG))
             .build();
-
 
     private final MainRepository<Certificate> certificateRepository = Mockito.mock(MainRepository.class);
     private final MainRepository<Tag> tagRepository = Mockito.mock(MainRepository.class);
-    private final CertificateServiceImpl service = new CertificateServiceImpl(certificateRepository, tagRepository);
+    private final CertificateServiceImpl service = new CertificateServiceImpl(tagRepository, certificateRepository);
 
     @Test
     void testFindByIdShouldReturnCertificateWithQueriedIdIfSuchExist() {
@@ -71,7 +68,7 @@ class CertificateServiceImplTest {
     @Test
     void testAddShouldAddCertificateToRepository() {
         Mockito.when(certificateRepository.add(CERTIFICATE)).thenReturn(CERTIFICATE);
-        Mockito.when(tagRepository.queryFirst(Mockito.isA(TagByNameSpecification.class))).thenReturn(Optional.empty());
+        Mockito.when(tagRepository.queryFirst(Mockito.isA(Specification.class))).thenReturn(Optional.empty());
         doAnswer(AdditionalAnswers.returnsFirstArg()).when(tagRepository).add(any());
 
         Certificate actual = service.add(CERTIFICATE);
@@ -82,11 +79,14 @@ class CertificateServiceImplTest {
     @Test
     void TestUpdateShouldUpdateCertificate() {
         int newPrice = 1000;
-        Certificate certificate = new Certificate.Builder(CERTIFICATE).setLastUpdateDate(LocalDate.now()).setPrice(newPrice).build();
+        Certificate certificate = CERTIFICATE.toBuilder()
+                .lastUpdateDate(LocalDate.now())
+                .price(newPrice)
+                .build();
+
         Mockito.when(certificateRepository.update(certificate)).thenReturn(certificate);
-        Mockito.when(certificateRepository.queryFirst(isA(ModelByIdSpecification.class)))
-                .thenReturn(Optional.of(CERTIFICATE));
-        Mockito.when(tagRepository.queryFirst(Mockito.isA(TagByNameSpecification.class))).thenReturn(Optional.empty());
+        Mockito.when(certificateRepository.queryFirst(isA(Specification.class))).thenReturn(Optional.of(CERTIFICATE));
+        Mockito.when(tagRepository.queryFirst(Mockito.isA(Specification.class))).thenReturn(Optional.empty());
         doAnswer(AdditionalAnswers.returnsFirstArg()).when(tagRepository).add(any());
 
         Certificate actual = service.update(certificate);

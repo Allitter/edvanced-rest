@@ -5,12 +5,10 @@ import com.epam.esm.model.Purchase;
 import com.epam.esm.model.PurchaseCertificate;
 import com.epam.esm.model.User;
 import com.epam.esm.repository.MainRepository;
-import com.epam.esm.repository.specification.common.ModelByIdSpecification;
-import com.epam.esm.repository.specification.common.ModelNotRemovedSpecification;
-import com.epam.esm.repository.specification.purchase.PurchaseByUserIdSpecification;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.service.PurchaseService;
 import com.epam.esm.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -24,26 +22,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.epam.esm.repository.specification.CommonSpecifications.*;
+import static com.epam.esm.repository.specification.PurchaseSpecifications.byUserId;
+
 @Service
+@RequiredArgsConstructor
 @Transactional(isolation = Isolation.REPEATABLE_READ)
 public class PurchaseServiceImpl implements PurchaseService {
     private final UserService userService;
     private final CertificateService certificateService;
     private final MainRepository<Purchase> purchaseRepository;
 
-    public PurchaseServiceImpl(UserService userService,
-                               CertificateService certificateService,
-                               MainRepository<Purchase> purchaseRepository) {
-        this.userService = userService;
-        this.certificateService = certificateService;
-        this.purchaseRepository = purchaseRepository;
-    }
-
     @Override
     public Purchase findById(Long id) {
-        Specification<Purchase> specification = new ModelByIdSpecification<Purchase>(id)
-                .and(new ModelNotRemovedSpecification<>());
-
+        Specification<Purchase> specification = typed(byId(id), Purchase.class).and(notRemoved());
         return purchaseRepository
                 .queryFirst(specification)
                 .orElseThrow(EntityNotFoundException::new);
@@ -51,9 +43,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Override
     public Page<Purchase> findByUserId(Long idUser, Pageable pageable, boolean eager) {
-        Specification<Purchase> specification = new PurchaseByUserIdSpecification(idUser)
-                .and(new ModelNotRemovedSpecification<>());
-
+        Specification<Purchase> specification = byUserId(idUser).and(notRemoved());
         return purchaseRepository.query(specification, pageable, eager);
     }
 

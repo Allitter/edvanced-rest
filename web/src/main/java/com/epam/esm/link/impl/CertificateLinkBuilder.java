@@ -4,21 +4,17 @@ import com.epam.esm.controller.CertificateController;
 import com.epam.esm.dto.CertificateDto;
 import com.epam.esm.dto.TagDto;
 import com.epam.esm.link.LinkBuilder;
+import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.Link;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
+@RequiredArgsConstructor
 public class CertificateLinkBuilder implements LinkBuilder<CertificateDto> {
     private final LinkBuilder<TagDto> tagLinkBuilder;
-
-    public CertificateLinkBuilder(LinkBuilder<TagDto> tagLinkBuilder) {
-        this.tagLinkBuilder = tagLinkBuilder;
-    }
 
     @Override
     public CertificateDto buildLinks(CertificateDto dto) {

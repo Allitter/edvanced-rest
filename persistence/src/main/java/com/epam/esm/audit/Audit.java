@@ -1,9 +1,12 @@
 package com.epam.esm.audit;
 
+import lombok.Data;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Data
 public class Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,7 +22,7 @@ public class Audit {
     protected Audit() {
     }
 
-    public Audit(Operation operation, LocalDateTime time, String auditContent) {
+    private Audit(Operation operation, LocalDateTime time, String auditContent) {
         this.operation = operation;
         this.time = time;
         this.auditContent = auditContent;
@@ -35,38 +38,6 @@ public class Audit {
 
     public static Audit removeFor(Object object) {
         return new Audit(Operation.REMOVE, LocalDateTime.now(), object.toString());
-    }
-
-    public Operation getOperation() {
-        return operation;
-    }
-
-    public LocalDateTime getTime() {
-        return time;
-    }
-
-    public String getAuditContent() {
-        return auditContent;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    private void setId(Long id) {
-        this.id = id;
-    }
-
-    private void setOperation(Operation operation) {
-        this.operation = operation;
-    }
-
-    private void setTime(LocalDateTime time) {
-        this.time = time;
-    }
-
-    private void setAuditContent(String auditContent) {
-        this.auditContent = auditContent;
     }
 
     public enum Operation {

@@ -11,6 +11,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
 public class UserLinkBuilder implements LinkBuilder<UserDto> {
+
     @Override
     public UserDto buildLinks(UserDto dto) {
         return dto

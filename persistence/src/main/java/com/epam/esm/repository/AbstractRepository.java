@@ -3,6 +3,7 @@ package com.epam.esm.repository;
 import com.epam.esm.exception.SortArgumentException;
 import com.epam.esm.model.Model;
 import com.epam.esm.repository.query.NativeQuery;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -17,13 +18,10 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.*;
 
+@RequiredArgsConstructor
 public abstract class AbstractRepository<T extends Model> implements MainRepository<T> {
     @PersistenceContext(type = PersistenceContextType.TRANSACTION)
     protected final EntityManager entityManager;
-
-    protected AbstractRepository(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
 
     protected abstract Class<T> getEntityType();
 
@@ -73,7 +71,8 @@ public abstract class AbstractRepository<T extends Model> implements MainReposit
     @Override
     public Page<T> query(Specification<T> specification, Pageable pageable, boolean eager) {
         List<T> items = queryList(specification, pageable, eager);
-        return new PageImpl<>(items, pageable, count(specification));
+        long count = count(specification);
+        return new PageImpl<>(items, pageable, count);
     }
 
     @Override
@@ -102,6 +101,11 @@ public abstract class AbstractRepository<T extends Model> implements MainReposit
                 : queryLazy(specification, pageable, criteriaBuilder, criteriaQuery);
     }
 
+    @Override
+    public boolean exists(Specification<T> specification) {
+        return count(specification) > 0;
+    }
+
     private List<T> queryEager(Specification<T> specification, Pageable pageable,
                                CriteriaBuilder criteriaBuilder, CriteriaQuery<T> criteriaQuery) {
 
@@ -118,10 +122,8 @@ public abstract class AbstractRepository<T extends Model> implements MainReposit
         root = criteriaQuery.from(getEntityType());
 
         fetchConnectedEntities(root);
-        criteriaQuery.select(root).where(root.get("id").in(ids))
-                .orderBy(criteriaBuilder.asc(root.get("id")))
-                .distinct(true);
-
+        criteriaQuery.select(root).where(root.get("id").in(ids)).distinct(true);
+        trySort(pageable, criteriaBuilder, criteriaQuery, root);
         return entityManager.createQuery(criteriaQuery).getResultList();
     }
 
@@ -142,7 +144,11 @@ public abstract class AbstractRepository<T extends Model> implements MainReposit
     private void trySort(Pageable pageable, CriteriaBuilder criteriaBuilder,
                          CriteriaQuery<?> criteriaQuery, Root<?> root) {
         try {
-            criteriaQuery.orderBy(QueryUtils.toOrders(pageable.getSort(), root, criteriaBuilder));
+            if (pageable.getSort().isUnsorted()) {
+                criteriaQuery.orderBy(criteriaBuilder.asc(root.get("id")));
+            } else {
+                criteriaQuery.orderBy(QueryUtils.toOrders(pageable.getSort(), root, criteriaBuilder));
+            }
         } catch (PropertyReferenceException e) {
             throw new SortArgumentException(e.getPropertyName());
         }
@@ -163,7 +169,7 @@ public abstract class AbstractRepository<T extends Model> implements MainReposit
         Root<T> root = countQuery.from(getEntityType());
 
         countQuery.select(criteriaBuilder.count(root));
-        countQuery.where(specification.toPredicate(root, criteriaQuery, criteriaBuilder));
+        countQuery.where(specification.toPredicate(root, criteriaQuery, criteriaBuilder)).distinct(true);
 
         return entityManager
                 .createQuery(countQuery)
