@@ -1,24 +1,25 @@
+plugins {
+    id "org.sonarqube"
+}
+
+sonarqube {
+    properties {
+        property 'sonar.projectKey', 'com.epam.esm'
+        property 'sonar.host.url', 'http://localhost:9000'
+        property 'sonar.login', '213f557b6d9d7e76f63be54790081491a88a93c3'
+    }
+}
+
 subprojects {
     group 'com.epam.esm'
     version '1.0'
 
-
-    ext {
-        springBootVersion = "2.4.4"
-        springVersion = "5.4.5"
-        hibernateVersion = "5.4.31.Final"
-        postgresVersion = "42.2.19"
-        h2Version = "1.4.200"
-        jaxbVersion = "2.3.2"
-        lombokVersion = "1.18.20"
-        xmlBindApiVersion = "2.3.2"
-    }
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
 
     repositories {
         mavenCentral()
     }
-
-    apply plugin: 'java-library'
 
     compileJava {
         sourceCompatibility = '11'
@@ -27,12 +28,12 @@ subprojects {
 
     dependencies {
         implementation "org.springframework.boot:spring-boot-starter:${springBootVersion}"
+        implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
         implementation "org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}"
         implementation "org.springframework.boot:spring-boot-starter-security:${springBootVersion}"
-        implementation "org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:${springBootVersion}"
 
-        implementation "org.apache.commons:commons-lang3:3.0"
-        implementation "org.apache.commons:commons-collections4:4.4"
+        implementation "org.apache.commons:commons-lang3:${apacheCommonsLangVersion}"
+        implementation "org.apache.commons:commons-collections4:${apacheCommonsCollectionsVersion}"
 
         compileOnly "org.projectlombok:lombok:${lombokVersion}"
         annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
@@ -44,5 +45,8 @@ subprojects {
 
     test {
         useJUnitPlatform()
+        finalizedBy jacocoTestReport
     }
 }
+
+subprojects.each {tasks['sonarqube'].dependsOn("${it.name}:test")}

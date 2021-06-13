@@ -45,7 +45,7 @@ public class JwtTokenVerifier extends OncePerRequestFilter implements Filter {
         String token = StringUtils.removeStart(authorizationHeader, jwtConfig.getTokenPrefix());
 
         try {
-            Authentication authentication = parsenToAuthentication(token);
+            Authentication authentication = parseToAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             filterChain.doFilter(request, response);
@@ -54,7 +54,7 @@ public class JwtTokenVerifier extends OncePerRequestFilter implements Filter {
         }
     }
 
-    private Authentication parsenToAuthentication(String token) {
+    private Authentication parseToAuthentication(String token) {
         Jws<Claims> claimsJws = Jwts.parserBuilder()
                 .setSigningKey(secretKey).build()
                 .parseClaimsJws(token);

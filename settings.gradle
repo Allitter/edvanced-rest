@@ -1,3 +1,10 @@
+pluginManagement {
+    plugins {
+        id 'org.springframework.boot' version "${springBootVersion}"
+        id "org.sonarqube" version "${sonarQubeVersion}"
+    }
+}
+
 rootProject.name = 'rest-basics'
 include 'persistence'
 include 'web'

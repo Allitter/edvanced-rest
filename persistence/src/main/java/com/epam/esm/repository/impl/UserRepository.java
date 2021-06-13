@@ -1,6 +1,5 @@
 package com.epam.esm.repository.impl;
 
-import com.epam.esm.model.Purchase;
 import com.epam.esm.model.User;
 import com.epam.esm.repository.AbstractRepository;
 import org.springframework.data.jpa.domain.Specification;

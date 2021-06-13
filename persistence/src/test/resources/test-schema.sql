@@ -71,10 +71,3 @@ create TABLE purchase_certificate
     FOREIGN KEY (id_purchase) REFERENCES purchase (id) ON DELETE CASCADE,
     FOREIGN KEY (id_certificate) REFERENCES certificate (id) ON DELETE CASCADE
 )
-
-create TABLE audit
-(
-    id      INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    audit_content VARCHAR(999999);
-)

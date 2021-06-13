@@ -2,7 +2,9 @@ package com.epam.esm.audit;
 
 import com.epam.esm.util.BeanUtil;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.PostUpdate;
+import javax.persistence.PreRemove;
 
 public class EntityActionListener {
 
