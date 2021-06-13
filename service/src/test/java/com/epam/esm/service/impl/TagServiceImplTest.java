@@ -77,7 +77,7 @@ class TagServiceImplTest {
 
     @Test
     void testAddShouldThrowExceptionIfNameIsUsed() {
-        Mockito.when(repository.queryFirst(Mockito.isA(Specification.class))).thenReturn(Optional.of(FIRST_TAG));
+        Mockito.when(repository.exists(Mockito.isA(Specification.class))).thenReturn(true);
         TagServiceImpl service = new TagServiceImpl(repository);
 
         assertThrows(EntityAlreadyExistsException.class, () -> service.add(FIRST_TAG));
