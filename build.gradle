@@ -5,7 +5,7 @@ plugins {
 sonarqube {
     properties {
         property 'sonar.projectKey', 'com.epam.esm'
-        property 'sonar.host.url', 'http://localhost:9000'
+        property 'sonar.host.url', 'http://sonarqube:9000'
         property 'sonar.login', '213f557b6d9d7e76f63be54790081491a88a93c3'
     }
 }
@@ -50,3 +50,7 @@ subprojects {
 }
 
 subprojects.each {tasks['sonarqube'].dependsOn("${it.name}:test")}
+
+tasks.named('wrapper') {
+    distributionType = Wrapper.DistributionType.ALL
+}
