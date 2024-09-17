@@ -1,10 +1,9 @@
 out
 target
+lib
 build
 .gradle
 *.class
-*.jar
-
 
 #IDEA
 *.iml
